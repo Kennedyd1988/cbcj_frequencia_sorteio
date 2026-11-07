@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CBCJ 2026 · Frequência</title>
+<meta name="description" content="Controle de matrículas, frequência e sorteio do Curso Bíblico Conhecendo Jesus — Igreja de Cristo em Riacho da Cruz">
+<meta name="theme-color" content="#8E1B2E">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="assets/icone-192.png">
+<link rel="apple-touch-icon" href="assets/icone-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --vinho:#8E1B2E; --vinho-esc:#5E0F1D; --vinho-claro:#B23A4E;
+  --ouro:#C9962B; --ouro-claro:#E9C77B; --creme:#FAF7F3; --creme-2:#F3ECE3;
+  --tinta:#2A1A1D; --suave:#6F5F62; --linha:#E7DDD3; --branco:#fff;
+  --verde:#2E7D4F; --verde-bg:#E5F3EA; --verm:#B3261E; --verm-bg:#FBE7E5;
+  --sombra:0 1px 2px rgba(94,15,29,.06),0 6px 20px rgba(94,15,29,.08);
+  --raio:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--creme);color:var(--tinta);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+h1,h2,h3,.serif{font-family:Lora,Georgia,serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ===== Cabeçalho ===== */
+.hero{position:relative;color:#fff;overflow:hidden;background:var(--vinho-esc)}
+.hero::before{content:"";position:absolute;inset:0;background:url(assets/cruz.jpg) center 38%/cover no-repeat;opacity:.9}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(94,15,29,.97) 0%,rgba(94,15,29,.88) 45%,rgba(94,15,29,.35) 100%)}
+.hero-in{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:18px 16px 16px;display:flex;align-items:center;gap:16px}
+.hero img{height:62px;width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.hero .txt{border-left:1px solid rgba(233,199,123,.5);padding-left:16px}
+.hero .ano{font-family:Lora,serif;font-size:22px;font-weight:700;color:var(--ouro-claro);line-height:1}
+.hero .igreja{font-size:12px;opacity:.9;margin-top:4px;letter-spacing:.02em}
+.faixa{height:4px;background:linear-gradient(90deg,var(--ouro),var(--ouro-claro),var(--ouro))}
+
+/* ===== Navegação ===== */
+nav.abas{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--linha);display:flex;padding:6px 6px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(94,15,29,.08)}
+nav.abas button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 2px;border-radius:12px;color:var(--suave);font-size:11px;font-weight:600}
+nav.abas button.ativo{color:var(--vinho);background:#F7E9EB}
+nav.abas svg.i{width:22px;height:22px}
+@media(min-width:820px){
+  body{padding-bottom:30px}
+  nav.abas{position:sticky;top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--linha);justify-content:center;gap:4px;padding:8px}
+  nav.abas button{flex:none;flex-direction:row;font-size:14px;padding:10px 18px;gap:8px}
+  nav.abas svg.i{width:19px;height:19px}
+}
+
+main{max-width:1100px;margin:0 auto;padding:18px 16px}
+.tela{display:none}
+.tela.ativa{display:block;animation:entra .25s ease}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ===== Títulos de seção ===== */
+.sec-tit{display:flex;align-items:center;gap:12px;margin:4px 0 16px}
+.sec-tit .ic{width:42px;height:42px;border-radius:50%;background:var(--vinho);color:#fff;display:grid;place-items:center;flex:none;box-shadow:0 0 0 3px var(--creme),0 0 0 5px var(--ouro-claro)}
+.sec-tit h2{margin:0;font-size:22px;color:var(--vinho-esc);line-height:1.1}
+.sec-tit p{margin:2px 0 0;color:var(--suave);font-size:13px}
+.sec-tit .acoes{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+
+/* ===== Componentes ===== */
+.card{background:#fff;border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;border:1px solid transparent;padding:10px 16px;font-weight:600;font-size:14px;transition:.15s;white-space:nowrap}
+.btn svg.i{width:18px;height:18px}
+.btn-pri{background:var(--vinho);color:#fff}
+.btn-pri:hover{background:var(--vinho-esc)}
+.btn-ouro{background:linear-gradient(180deg,var(--ouro-claro),var(--ouro));color:var(--vinho-esc);border-color:#b8862a}
+.btn-sec{background:#fff;border-color:var(--linha);color:var(--vinho-esc)}
+.btn-sec:hover{border-color:var(--vinho-claro)}
+.btn-perigo{background:var(--verm-bg);color:var(--verm)}
+.btn-ic{padding:8px;border-radius:10px;background:none;border:1px solid transparent;color:var(--suave);display:inline-grid;place-items:center}
+.btn-ic:hover{background:var(--creme-2);color:var(--vinho)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+.campo{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.campo label{font-size:12px;font-weight:700;color:var(--vinho-esc);text-transform:uppercase;letter-spacing:.04em}
+.campo input,.campo select,.campo textarea{border:1px solid var(--linha);border-radius:12px;padding:11px 13px;background:#fff;outline:none;width:100%}
+.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--vinho);box-shadow:0 0 0 3px rgba(142,27,46,.12)}
+.busca{position:relative;flex:1;min-width:180px}
+.busca input{width:100%;border:1px solid var(--linha);border-radius:12px;padding:10px 12px 10px 38px;background:#fff;outline:none}
+.busca input:focus{border-color:var(--vinho)}
+.busca svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--suave);width:18px;height:18px}
+
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+@media(min-width:720px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:14px 16px;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;right:-18px;top:-18px;width:64px;height:64px;border-radius:50%;background:var(--creme-2)}
+.stat .n{font-family:Lora,serif;font-size:28px;font-weight:700;color:var(--vinho);line-height:1;position:relative;z-index:1}
+.stat .l{font-size:12px;color:var(--suave);margin-top:6px;font-weight:600;position:relative;z-index:1}
+
+.vazio{text-align:center;padding:40px 20px;color:var(--suave)}
+.vazio .ic{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:var(--creme-2);display:grid;place-items:center;color:var(--vinho)}
+.vazio .ic svg{width:30px;height:30px}
+.vazio h3{margin:0 0 6px;color:var(--vinho-esc)}
+
+/* ===== Matriculados ===== */
+.barra{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.lista-alunos{display:grid;gap:10px}
+@media(min-width:720px){.lista-alunos{grid-template-columns:1fr 1fr}}
+.aluno{display:flex;gap:12px;align-items:flex-start;padding:14px}
+.avatar{width:44px;height:44px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:Lora,serif;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--vinho),var(--vinho-esc));font-size:16px;border:2px solid var(--ouro-claro)}
+.aluno .info{flex:1;min-width:0}
+.aluno .nome{font-weight:700;font-size:15px;color:var(--tinta)}
+.aluno .det{font-size:13px;color:var(--suave);display:flex;align-items:center;gap:6px;margin-top:3px}
+.aluno .det svg{width:14px;height:14px}
+.aluno .det span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aluno .acts{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.mini-freq{font-size:12px;font-weight:700;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.ok{background:var(--verde-bg);color:var(--verde)}
+.alerta{background:var(--verm-bg);color:var(--verm)}
+.neutro{background:var(--creme-2);color:var(--suave)}
+.num{font-family:Lora,serif;font-weight:700;color:var(--ouro);font-size:13px;margin-right:4px}
+
+/* ===== Chamada ===== */
+.aula-sel{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin-bottom:14px}
+.aula-sel select{flex:1;min-width:200px;border:1px solid var(--linha);border-radius:12px;padding:11px 13px;background:#fff;font-weight:600;color:var(--vinho-esc)}
+.aula-info{padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--vinho),var(--vinho-esc));color:#fff;border:0}
+.aula-info .lnum{font-family:Lora,serif;font-size:34px;font-weight:700;color:var(--ouro-claro);line-height:1}
+.aula-info .ltit{font-family:Lora,serif;font-size:17px;font-weight:600}
+.aula-info .ldata{font-size:12px;opacity:.85}
+.aula-info .cont{margin-left:auto;text-align:right}
+.aula-info .cont b{font-family:Lora,serif;font-size:24px;color:var(--ouro-claro)}
+.aula-info .cont small{display:block;font-size:11px;opacity:.85}
+.chamada{display:grid;gap:8px}
+@media(min-width:720px){.chamada{grid-template-columns:1fr 1fr}}
+.pres{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:14px;border:1.5px solid var(--linha);background:#fff;text-align:left;width:100%;transition:.15s}
+.pres .avatar{width:38px;height:38px;font-size:14px;background:#d9cfc6;border-color:#eee}
+.pres .nm{flex:1;font-weight:600}
+.pres .tag{font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;background:var(--verm-bg);color:var(--verm);letter-spacing:.03em}
+.pres.p{border-color:#9fd1b2;background:#F4FBF6}
+.pres.p .avatar{background:linear-gradient(135deg,var(--verde),#1d5a37);border-color:#bfe3cc}
+.pres.p .tag{background:var(--verde);color:#fff}
+
+/* ===== Grade de frequência ===== */
+.grade-wrap{overflow:auto;border-radius:var(--raio)}
+table.grade{border-collapse:separate;border-spacing:0;width:100%;font-size:14px;background:#fff}
+.grade th,.grade td{padding:9px 8px;border-bottom:1px solid var(--linha);text-align:center;white-space:nowrap}
+.grade thead th{background:var(--vinho);color:#fff;font-weight:600;font-size:12px;position:sticky;top:0;z-index:2}
+.grade thead th small{display:block;font-weight:400;opacity:.8;font-size:10px}
+.grade th:first-child,.grade td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1;min-width:170px;max-width:240px;overflow:hidden;text-overflow:ellipsis;box-shadow:1px 0 0 var(--linha)}
+.grade thead th:first-child{background:var(--vinho-esc);z-index:3}
+.grade tbody tr:hover td{background:#FDF9F5}
+.cel{width:30px;height:30px;border-radius:8px;border:0;font-weight:800;font-size:12px}
+.cel.P{background:var(--verde-bg);color:var(--verde)}
+.cel.F{background:var(--verm-bg);color:var(--verm)}
+.pct{display:flex;align-items:center;gap:8px;min-width:140px}
+.pct .bar{flex:1;height:8px;border-radius:9px;background:var(--creme-2);overflow:hidden}
+.pct .bar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--ouro),var(--vinho))}
+.pct b{font-family:Lora,serif;width:44px;text-align:right}
+
+/* ===== Sorteio (caça-níquel) ===== */
+.maquina{position:relative;border-radius:26px;padding:16px;background:linear-gradient(180deg,var(--vinho) 0%,var(--vinho-esc) 100%);box-shadow:var(--sombra),inset 0 2px 0 rgba(255,255,255,.15);margin-bottom:16px}
+.maquina .topo{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--ouro-claro);font-family:Lora,serif;font-weight:700;letter-spacing:.18em;font-size:14px;margin-bottom:10px;text-transform:uppercase}
+.luzes{display:flex;justify-content:space-between;padding:0 6px;margin:6px 0}
+.luzes i{width:10px;height:10px;border-radius:50%;background:#6b4a1c;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+.maquina.girando .luzes i{animation:pisca .5s infinite}
+.maquina.girando .luzes i:nth-child(even){animation-delay:.25s}
+.maquina.ganhou .luzes i{background:var(--ouro-claro);box-shadow:0 0 10px var(--ouro-claro)}
+@keyframes pisca{0%,100%{background:#6b4a1c;box-shadow:none}50%{background:var(--ouro-claro);box-shadow:0 0 10px var(--ouro-claro)}}
+.janela{position:relative;height:118px;border-radius:16px;overflow:hidden;background:linear-gradient(180deg,#e9e1d6 0%,#fff 22%,#fff 78%,#e9e1d6 100%);border:4px solid var(--ouro);box-shadow:inset 0 6px 14px rgba(0,0,0,.18),inset 0 -6px 14px rgba(0,0,0,.18)}
+.janela::before,.janela::after{content:"";position:absolute;top:0;bottom:0;width:22%;z-index:2;pointer-events:none}
+.janela::before{left:0;background:linear-gradient(90deg,rgba(94,15,29,.55),rgba(255,255,255,0))}
+.janela::after{right:0;background:linear-gradient(270deg,rgba(94,15,29,.55),rgba(255,255,255,0))}
+.fita{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;will-change:transform}
+.nm-card{flex:none;width:var(--cw,220px);height:84px;margin:0 6px;border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 12px;font-weight:700;font-size:16px;line-height:1.2;background:var(--creme);border:1.5px solid var(--linha);color:var(--vinho-esc)}
+.nm-card.vence{background:linear-gradient(180deg,var(--ouro-claro),var(--ouro));border-color:#a77818;color:var(--vinho-esc);transform:scale(1.06);box-shadow:0 6px 18px rgba(201,150,43,.5);transition:.3s}
+.mira{position:absolute;left:50%;transform:translateX(-50%);z-index:3;width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent}
+.mira.cima{top:-2px;border-top:16px solid var(--ouro)}
+.mira.baixo{bottom:-2px;border-bottom:16px solid var(--ouro)}
+.linha-c{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(201,150,43,.55);z-index:1;transform:translateX(-1px)}
+.alavanca{display:flex;justify-content:center;margin-top:16px}
+.btn-sortear{font-family:Lora,serif;font-size:20px;font-weight:700;letter-spacing:.12em;padding:14px 46px;border-radius:999px;border:0;color:var(--vinho-esc);background:linear-gradient(180deg,#F6DFA6,var(--ouro));box-shadow:0 5px 0 #8f6a1d,0 10px 20px rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s}
+.btn-sortear:active{transform:translateY(4px);box-shadow:0 1px 0 #8f6a1d,0 4px 10px rgba(0,0,0,.3)}
+.btn-sortear:disabled{filter:grayscale(.5);opacity:.7}
+.sort-grid{display:grid;gap:14px}
+@media(min-width:820px){.sort-grid{grid-template-columns:1.1fr .9fr}}
+.opc{padding:16px}
+.opc h3,.hist h3{margin:0 0 12px;font-size:16px;color:var(--vinho-esc)}
+.chk{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px}
+.chk input{width:18px;height:18px;accent-color:var(--vinho)}
+.pool{font-size:13px;color:var(--suave);margin-top:6px;padding-top:10px;border-top:1px dashed var(--linha)}
+.pool b{color:var(--vinho)}
+.hist{padding:16px}
+.hist ol{margin:0;padding:0;list-style:none;display:grid;gap:8px;max-height:280px;overflow:auto}
+.hist li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--creme)}
+.hist li .pos{font-family:Lora,serif;font-weight:700;color:var(--ouro);width:26px}
+.hist li .q{flex:1;font-weight:600}
+.hist li small{color:var(--suave);font-size:11px}
+
+/* ===== Modal / vencedor ===== */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(42,10,16,.6);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.aberto{display:flex;animation:entra .2s}
+.caixa{background:#fff;border-radius:20px;width:100%;max-width:460px;max-height:90vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.caixa .cab{padding:16px 18px;border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:10px}
+.caixa .cab h3{margin:0;font-size:18px;color:var(--vinho-esc);flex:1}
+.caixa .corpo{padding:18px}
+.caixa .rod{padding:14px 18px;border-top:1px solid var(--linha);display:flex;gap:8px;justify-content:flex-end}
+.vencedor{text-align:center;padding:30px 22px;background:radial-gradient(circle at 50% 0%,#fff6dd,#fff 60%)}
+.vencedor .coroa{width:70px;height:70px;margin:0 auto 10px;border-radius:50%;background:linear-gradient(180deg,var(--ouro-claro),var(--ouro));display:grid;place-items:center;color:var(--vinho-esc);box-shadow:0 0 0 6px #fbf0d4}
+.vencedor .coroa svg{width:34px;height:34px}
+.vencedor .rot{font-size:12px;font-weight:800;letter-spacing:.2em;color:var(--ouro);text-transform:uppercase}
+.vencedor .quem{font-family:Lora,serif;font-size:30px;font-weight:700;color:var(--vinho);margin:8px 0 18px;line-height:1.15}
+canvas#confete{position:fixed;inset:0;pointer-events:none;z-index:60}
+
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);background:var(--tinta);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:70;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%)}
+@media(min-width:820px){.toast{bottom:30px}}
+
+.dados-grid{display:grid;gap:14px}
+@media(min-width:720px){.dados-grid{grid-template-columns:1fr 1fr}}
+.bloco{padding:18px}
+.bloco h3{margin:0 0 6px;font-size:17px;color:var(--vinho-esc)}
+.bloco p{margin:0 0 14px;color:var(--suave);font-size:13px}
+.bloco .btns{display:flex;gap:8px;flex-wrap:wrap}
+.aviso{display:flex;gap:10px;padding:12px 14px;border-radius:12px;background:#FFF7E6;border:1px solid #F1D9A6;color:#6b4a10;font-size:13px;margin-bottom:14px}
+.aviso svg{flex:none;color:var(--ouro)}
+footer{text-align:center;color:var(--suave);font-size:12px;padding:10px 16px 20px}
+footer .serif{color:var(--vinho);font-style:italic}
+</style>
+</head>
+<body>
+
+<!-- Ícones -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/></symbol>
+    <symbol id="i-slot" viewBox="0 0 24 24"><rect x="2" y="5" width="16" height="14" rx="2"/><path d="M6 9v6M10 9v6M14 9v6"/><path d="M21 6v6l-3 1"/><circle cx="21" cy="5" r="1.5"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M3 21l1.6-4.6A8.5 8.5 0 1 1 8 19.8z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1-1.5-2-1-1 .8a4 4 0 0 1-1.8-1.8l.8-1-1-2z"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5M12 3v12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></symbol>
+    <symbol id="i-crown" viewBox="0 0 24 24"><path d="M2 18l2-11 5 5 3-7 3 7 5-5 2 11z"/><path d="M4 21h16"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  </defs>
+</svg>
+
+<header class="hero">
+  <div class="hero-in">
+    <img src="assets/logo-claro.png" alt="Curso Bíblico Conhecendo Jesus">
+    <div class="txt">
+      <div class="ano" id="tituloTurma">2026</div>
+      <div class="igreja">Igreja de Cristo em Riacho da Cruz</div>
+    </div>
+  </div>
+</header>
+<div class="faixa"></div>
+
+<nav class="abas">
+  <button data-tela="alunos" class="ativo"><svg class="i"><use href="#i-users"/></svg>Matriculados</button>
+  <button data-tela="chamada"><svg class="i"><use href="#i-check"/></svg>Chamada</button>
+  <button data-tela="freq"><svg class="i"><use href="#i-chart"/></svg>Frequência</button>
+  <button data-tela="sorteio"><svg class="i"><use href="#i-slot"/></svg>Sorteio</button>
+  <button data-tela="dados"><svg class="i"><use href="#i-gear"/></svg>Dados</button>
+</nav>
+
+<main>
+
+<!-- ============ MATRICULADOS ============ -->
+<section class="tela ativa" id="t-alunos">
+  <div class="sec-tit">
+    <div class="ic"><svg class="i"><use href="#i-users"/></svg></div>
+    <div><h2>Matriculados</h2><p id="contAlunos">Nenhum aluno ainda</p></div>
+    <div class="acoes">
+      <button class="btn btn-sec" onclick="abrirLote()"><svg class="i"><use href="#i-list"/></svg><span class="hide-sm">Vários</span></button>
+      <button class="btn btn-pri" onclick="abrirAluno()"><svg class="i"><use href="#i-plus"/></svg>Matricular</button>
+    </div>
+  </div>
+  <div class="barra">
+    <div class="busca"><svg class="i"><use href="#i-search"/></svg><input id="buscaAluno" placeholder="Buscar por nome, endereço ou telefone…"></div>
+  </div>
+  <div class="lista-alunos" id="listaAlunos"></div>
+</section>
+
+<!-- ============ CHAMADA ============ -->
+<section class="tela" id="t-chamada">
+  <div class="sec-tit">
+    <div class="ic"><svg class="i"><use href="#i-check"/></svg></div>
+    <div><h2>Chamada</h2><p>Toque no nome de quem está presente</p></div>
+  </div>
+  <div class="aula-sel">
+    <select id="selAula" aria-label="Escolher aula"></select>
+    <button class="btn btn-pri" onclick="abrirAula()"><svg class="i"><use href="#i-plus"/></svg>Nova aula</button>
+    <button class="btn-ic" id="btnEditAula" title="Editar aula" onclick="abrirAula(aulaAtual)"><svg class="i"><use href="#i-edit"/></svg></button>
+  </div>
+  <div id="areaChamada"></div>
+</section>
+
+<!-- ============ FREQUÊNCIA ============ -->
+<section class="tela" id="t-freq">
+  <div class="sec-tit">
+    <div class="ic"><svg class="i"><use href="#i-chart"/></svg></div>
+    <div><h2>Frequência</h2><p>Mínimo para certificado: <b id="lblMin">75%</b> · toque em P/F para corrigir</p></div>
+    <div class="acoes"><button class="btn btn-sec" onclick="exportarCSV()"><svg class="i"><use href="#i-down"/></svg>Planilha</button></div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="barra">
+    <div class="busca"><svg class="i"><use href="#i-search"/></svg><input id="buscaFreq" placeholder="Buscar aluno…"></div>
+    <select id="ordFreq" class="btn btn-sec" style="padding-right:10px">
+      <option value="nome">Ordem: nome</option>
+      <option value="maior">Maior frequência</option>
+      <option value="menor">Menor frequência</option>
+    </select>
+  </div>
+  <div class="card grade-wrap" id="areaGrade"></div>
+</section>
+
+<!-- ============ SORTEIO ============ -->
+<section class="tela" id="t-sorteio">
+  <div class="sec-tit">
+    <div class="ic"><svg class="i"><use href="#i-slot"/></svg></div>
+    <div><h2>Sorteio</h2><p>Gire a roleta e descubra o nome sorteado</p></div>
+    <div class="acoes"><button class="btn-ic" id="btnSom" title="Som" onclick="alternaSom()"><svg class="i"><use href="#i-sound"/></svg></button></div>
+  </div>
+
+  <div class="maquina" id="maquina">
+    <div class="topo">✦ Conhecendo Jesus ✦</div>
+    <div class="luzes" id="luzesC"></div>
+    <div class="janela" id="janela">
+      <div class="linha-c"></div>
+      <div class="mira cima"></div><div class="mira baixo"></div>
+      <div class="fita" id="fita"></div>
+    </div>
+    <div class="luzes" id="luzesB"></div>
+    <div class="alavanca"><button class="btn-sortear" id="btnSortear" onclick="sortear()">SORTEAR</button></div>
+  </div>
+
+  <div class="sort-grid">
+    <div class="card opc">
+      <h3>Quem participa</h3>
+      <div class="campo" style="margin-bottom:6px">
+        <select id="sortFiltro">
+          <option value="todos">Todos os matriculados</option>
+          <option value="aptos">Somente com frequência mínima</option>
+          <option value="aula">Somente presentes em uma aula</option>
+        </select>
+      </div>
+      <div class="campo" id="boxSortAula" style="display:none;margin-bottom:6px"><select id="sortAula"></select></div>
+      <label class="chk"><input type="checkbox" id="sortSemRepetir" checked> Não repetir quem já foi sorteado</label>
+      <div class="pool" id="poolInfo"></div>
+    </div>
+    <div class="card hist">
+      <div style="display:flex;align-items:center;margin-bottom:12px"><h3 style="margin:0;flex:1">Sorteados</h3><button class="btn-ic" title="Limpar histórico" onclick="limparHist()"><svg class="i"><use href="#i-trash"/></svg></button></div>
+      <ol id="listaHist"></ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DADOS ============ -->
+<section class="tela" id="t-dados">
+  <div class="sec-tit">
+    <div class="ic"><svg class="i"><use href="#i-gear"/></svg></div>
+    <div><h2>Dados e ajustes</h2><p>Cópia de segurança e configurações da turma</p></div>
+  </div>
+  <div class="aviso"><svg class="i"><use href="#i-info"/></svg><div>Os dados ficam salvos <b>neste aparelho e neste navegador</b>. Faça uma cópia de segurança com frequência e use “Restaurar” para levar os dados para outro celular ou computador.</div></div>
+  <div class="dados-grid">
+    <div class="card bloco">
+      <h3>Configurações</h3>
+      <p>Usadas no cabeçalho e no cálculo de aptos ao certificado.</p>
+      <div class="campo"><label>Nome da turma</label><input id="cfgTurma" placeholder="2026"></div>
+      <div class="campo"><label>Frequência mínima (%)</label><input id="cfgMin" type="number" min="0" max="100" step="5"></div>
+      <button class="btn btn-pri" onclick="salvarCfg()">Salvar ajustes</button>
+    </div>
+    <div class="card bloco">
+      <h3>Cópia de segurança</h3>
+      <p>Baixa um arquivo com alunos, aulas, presenças e sorteios.</p>
+      <div class="btns">
+        <button class="btn btn-ouro" onclick="backup()"><svg class="i"><use href="#i-down"/></svg>Baixar cópia</button>
+        <label class="btn btn-sec"><svg class="i"><use href="#i-up"/></svg>Restaurar<input type="file" accept=".json,application/json" hidden onchange="restaurar(this)"></label>
+      </div>
+      <p style="margin:16px 0 8px">Exportar a lista de matriculados (abre no Excel).</p>
+      <button class="btn btn-sec" onclick="exportarAlunos()"><svg class="i"><use href="#i-down"/></svg>Lista de matriculados</button>
+    </div>
+    <div class="card bloco">
+      <h3>Começar do zero</h3>
+      <p>Apaga todos os dados deste aparelho. Baixe uma cópia antes.</p>
+      <button class="btn btn-perigo" onclick="zerar()"><svg class="i"><use href="#i-trash"/></svg>Apagar tudo</button>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer><span class="serif">“Eu sou o caminho, e a verdade, e a vida.”</span> — João 14.6<br>Curso Bíblico Conhecendo Jesus · Igreja de Cristo em Riacho da Cruz</footer>
+
+<!-- ===== Modais ===== -->
+<div class="modal" id="mAluno">
+  <div class="caixa">
+    <div class="cab"><h3 id="mAlunoTit">Nova matrícula</h3><button class="btn-ic" onclick="fechar('mAluno')"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <div class="campo"><label>Nome completo</label><input id="fNome" autocomplete="off"></div>
+      <div class="campo"><label>Endereço</label><input id="fEnd" placeholder="Rua, número, bairro" autocomplete="off"></div>
+      <div class="campo"><label>Telefone</label><input id="fTel" inputmode="tel" placeholder="(84) 9 0000-0000" autocomplete="off"></div>
+    </div>
+    <div class="rod">
+      <button class="btn btn-perigo" id="btnExcluirAluno" style="margin-right:auto"><svg class="i"><use href="#i-trash"/></svg>Excluir</button>
+      <button class="btn btn-sec" onclick="fechar('mAluno')">Cancelar</button>
+      <button class="btn btn-pri" onclick="salvarAluno()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mLote">
+  <div class="caixa">
+    <div class="cab"><h3>Matricular vários</h3><button class="btn-ic" onclick="fechar('mLote')"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <p style="margin:0 0 10px;color:var(--suave);font-size:13px">Cole um aluno por linha. Para incluir endereço e telefone, separe com ponto e vírgula:<br><b>Nome; Endereço; Telefone</b></p>
+      <div class="campo"><textarea id="fLote" rows="9" placeholder="Maria José da Silva; Rua Central, 10; 84999990000&#10;João Pedro Alves"></textarea></div>
+    </div>
+    <div class="rod"><button class="btn btn-sec" onclick="fechar('mLote')">Cancelar</button><button class="btn btn-pri" onclick="salvarLote()">Matricular</button></div>
+  </div>
+</div>
+
+<div class="modal" id="mAula">
+  <div class="caixa">
+    <div class="cab"><h3 id="mAulaTit">Nova aula</h3><button class="btn-ic" onclick="fechar('mAula')"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <div class="campo"><label>Lição nº</label><input id="aNum" type="number" min="1"></div>
+      <div class="campo"><label>Título da lição (opcional)</label><input id="aTit" placeholder="Ex.: Quem é Jesus?"></div>
+      <div class="campo"><label>Data</label><input id="aData" type="date"></div>
+    </div>
+    <div class="rod">
+      <button class="btn btn-perigo" id="btnExcluirAula" style="margin-right:auto"><svg class="i"><use href="#i-trash"/></svg>Excluir</button>
+      <button class="btn btn-sec" onclick="fechar('mAula')">Cancelar</button>
+      <button class="btn btn-pri" onclick="salvarAula()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="mVence">
+  <div class="caixa vencedor">
+    <div class="coroa"><svg class="i"><use href="#i-crown"/></svg></div>
+    <div class="rot">Nome sorteado</div>
+    <div class="quem" id="nomeVence">—</div>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+      <button class="btn btn-sec" onclick="fechar('mVence')">Fechar</button>
+      <button class="btn btn-pri" onclick="fechar('mVence');setTimeout(sortear,250)">Sortear outro</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confete"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= Armazenamento ================= */
+const CHAVE='cbcj2026_frequencia';
+const PADRAO={alunos:[],aulas:[],pres:{},sorteios:[],cfg:{turma:'2026',min:75,som:true}};
+let D;
+function carregar(){
+  try{D=JSON.parse(localStorage.getItem(CHAVE))||null}catch(e){D=null}
+  D=Object.assign(structuredClone(PADRAO),D||{});
+  D.cfg=Object.assign({},PADRAO.cfg,D.cfg||{});
+}
+function salvar(){try{localStorage.setItem(CHAVE,JSON.stringify(D))}catch(e){toast('Não foi possível salvar neste navegador')}}
+carregar();
+
+/* ================= Utilidades ================= */
+const $=s=>document.querySelector(s);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iniciais=n=>{const p=n.trim().split(/\s+/).filter(x=>x.length>2||x===x.toUpperCase());const a=n.trim().split(/\s+/);return((a[0]||'')[0]||'').toUpperCase()+((a.length>1?a[a.length-1]:'')[0]||'').toUpperCase()};
+const semAcento=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const porNome=(a,b)=>a.nome.localeCompare(b.nome,'pt-BR');
+const fmtData=d=>{if(!d)return'';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`};
+const hoje=()=>{const t=new Date();t.setMinutes(t.getMinutes()-t.getTimezoneOffset());return t.toISOString().slice(0,10)};
+function fmtTel(v){const d=v.replace(/\D/g,'').slice(0,11);if(d.length<=2)return d?`(${d}`:'';if(d.length<=6)return`(${d.slice(0,2)}) ${d.slice(2)}`;if(d.length<=10)return`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return`(${d.slice(0,2)}) ${d.slice(2,3)} ${d.slice(3,7)}-${d.slice(7)}`}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
+function abrir(id){$('#'+id).classList.add('aberto')}
+function fechar(id){$('#'+id).classList.remove('aberto')}
+document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='mVence')fechar(m.id)}));
+function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
+
+/* ================= Frequência (cálculo) ================= */
+function aulasOrd(){return[...D.aulas].sort((a,b)=>(a.num-b.num)||String(a.data).localeCompare(b.data))}
+function freqDe(id){
+  const tot=D.aulas.length;if(!tot)return{p:0,tot:0,pct:null};
+  let p=0;D.aulas.forEach(a=>{if(D.pres[a.id]&&D.pres[a.id][id])p++});
+  return{p,tot,pct:Math.round(p/tot*100)};
+}
+function classeFreq(pct){return pct===null?'neutro':pct>=D.cfg.min?'ok':'alerta'}
+
+/* ================= Navegação ================= */
+document.querySelectorAll('nav.abas button').forEach(b=>b.onclick=()=>irPara(b.dataset.tela));
+function irPara(t){
+  document.querySelectorAll('nav.abas button').forEach(b=>b.classList.toggle('ativo',b.dataset.tela===t));
+  document.querySelectorAll('.tela').forEach(s=>s.classList.toggle('ativa',s.id==='t-'+t));
+  ({alunos:rAlunos,chamada:rChamada,freq:rFreq,sorteio:rSorteio,dados:rDados})[t]();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ================= Matriculados ================= */
+let alunoEdit=null;
+$('#buscaAluno').oninput=rAlunos;
+$('#fTel').oninput=e=>e.target.value=fmtTel(e.target.value);
+function rAlunos(){
+  const q=semAcento($('#buscaAluno').value.trim());
+  const n=D.alunos.length;
+  $('#contAlunos').textContent=n?`${n} aluno${n>1?'s':''} matriculado${n>1?'s':''}`:'Nenhum aluno ainda';
+  const lista=[...D.alunos].sort(porNome).filter(a=>!q||semAcento(a.nome+' '+a.end+' '+a.tel).includes(q));
+  const el=$('#listaAlunos');
+  if(!n){el.innerHTML=`<div class="card vazio" style="grid-column:1/-1"><div class="ic"><svg class="i"><use href="#i-users"/></svg></div><h3>Nenhum matriculado</h3><p>Toque em <b>Matricular</b> para cadastrar o primeiro aluno do curso.</p></div>`;return}
+  if(!lista.length){el.innerHTML=`<div class="vazio" style="grid-column:1/-1">Nenhum aluno encontrado.</div>`;return}
+  const ord=[...D.alunos].sort(porNome);
+  el.innerHTML=lista.map(a=>{
+    const f=freqDe(a.id);const tel=a.tel.replace(/\D/g,'');
+    return`<div class="card aluno">
+      <div class="avatar">${esc(iniciais(a.nome))}</div>
+      <div class="info">
+        <div class="nome"><span class="num">${String(ord.indexOf(a)+1).padStart(2,'0')}</span>${esc(a.nome)}</div>
+        ${a.end?`<div class="det"><svg class="i"><use href="#i-pin"/></svg><span>${esc(a.end)}</span></div>`:''}
+        ${a.tel?`<div class="det"><svg class="i"><use href="#i-phone"/></svg><span>${esc(a.tel)}</span></div>`:''}
+      </div>
+      <div class="acts">
+        <span class="mini-freq ${classeFreq(f.pct)}">${f.pct===null?'sem aulas':f.pct+'%'}</span>
+        <div>
+          ${tel?`<a class="btn-ic" title="WhatsApp" target="_blank" rel="noopener" href="https://wa.me/55${tel}"><svg class="i"><use href="#i-wa"/></svg></a>`:''}
+          <button class="btn-ic" title="Editar" onclick="abrirAluno('${a.id}')"><svg class="i"><use href="#i-edit"/></svg></button>
+        </div>
+      </div></div>`}).join('');
+}
+function abrirAluno(id){
+  alunoEdit=id||null;const a=D.alunos.find(x=>x.id===id);
+  $('#mAlunoTit').textContent=a?'Editar matrícula':'Nova matrícula';
+  $('#fNome').value=a?a.nome:'';$('#fEnd').value=a?a.end:'';$('#fTel').value=a?a.tel:'';
+  $('#btnExcluirAluno').style.display=a?'':'none';
+  $('#btnExcluirAluno').onclick=()=>excluirAluno(id);
+  abrir('mAluno');setTimeout(()=>$('#fNome').focus(),100);
+}
+function salvarAluno(){
+  const nome=$('#fNome').value.trim().replace(/\s+/g,' ');
+  if(!nome){toast('Informe o nome completo');$('#fNome').focus();return}
+  const dup=D.alunos.find(x=>semAcento(x.nome)===semAcento(nome)&&x.id!==alunoEdit);
+  if(dup&&!confirm('Já existe um aluno com esse nome. Salvar mesmo assim?'))return;
+  const dados={nome,end:$('#fEnd').value.trim(),tel:$('#fTel').value.trim()};
+  if(alunoEdit)Object.assign(D.alunos.find(x=>x.id===alunoEdit),dados);
+  else D.alunos.push({id:uid(),...dados,criado:Date.now()});
+  salvar();fechar('mAluno');rAlunos();toast(alunoEdit?'Matrícula atualizada':'Aluno matriculado');
+}
+function excluirAluno(id){
+  const a=D.alunos.find(x=>x.id===id);
+  if(!confirm(`Excluir a matrícula de ${a.nome}? As presenças dele também serão apagadas.`))return;
+  D.alunos=D.alunos.filter(x=>x.id!==id);
+  Object.values(D.pres).forEach(p=>delete p[id]);
+  salvar();fechar('mAluno');rAlunos();toast('Matrícula excluída');
+}
+function abrirLote(){$('#fLote').value='';abrir('mLote');setTimeout(()=>$('#fLote').focus(),100)}
+function salvarLote(){
+  const linhas=$('#fLote').value.split('\n').map(l=>l.trim()).filter(Boolean);let c=0;
+  linhas.forEach(l=>{const[nome,end='',tel='']=l.split(/[;\t]/).map(s=>s.trim());
+    if(nome&&!D.alunos.some(x=>semAcento(x.nome)===semAcento(nome))){D.alunos.push({id:uid(),nome:nome.replace(/\s+/g,' '),end,tel:tel?fmtTel(tel):'',criado:Date.now()});c++}});
+  salvar();fechar('mLote');rAlunos();toast(c?`${c} aluno${c>1?'s':''} matriculado${c>1?'s':''}`:'Nenhum nome novo');
+}
+
+/* ================= Chamada ================= */
+let aulaAtual=null,aulaEdit=null;
+$('#selAula').onchange=e=>{aulaAtual=e.target.value;rChamada()};
+function rotAula(a){return`Lição ${String(a.num).padStart(2,'0')}${a.tit?' – '+a.tit:''}${a.data?' · '+fmtData(a.data):''}`}
+function rChamada(){
+  const aulas=aulasOrd();const sel=$('#selAula');
+  if(!aulas.find(a=>a.id===aulaAtual))aulaAtual=aulas.length?aulas[aulas.length-1].id:null;
+  sel.innerHTML=aulas.length?aulas.map(a=>`<option value="${a.id}" ${a.id===aulaAtual?'selected':''}>${esc(rotAula(a))}</option>`).join(''):'<option>Nenhuma aula criada</option>';
+  sel.disabled=!aulas.length;$('#btnEditAula').style.display=aulas.length?'':'none';
+  const el=$('#areaChamada');
+  if(!aulas.length){el.innerHTML=`<div class="card vazio"><div class="ic"><svg class="i"><use href="#i-book"/></svg></div><h3>Nenhuma aula registrada</h3><p>Toque em <b>Nova aula</b> para abrir a chamada da primeira lição.</p></div>`;return}
+  if(!D.alunos.length){el.innerHTML=`<div class="card vazio"><div class="ic"><svg class="i"><use href="#i-users"/></svg></div><h3>Ninguém matriculado</h3><p>Cadastre os alunos na aba <b>Matriculados</b>.</p></div>`;return}
+  const a=D.aulas.find(x=>x.id===aulaAtual);const p=D.pres[a.id]||{};
+  const pres=D.alunos.filter(x=>p[x.id]).length;
+  el.innerHTML=`<div class="card aula-info">
+      <div class="lnum">${String(a.num).padStart(2,'0')}</div>
+      <div><div class="ltit">${esc(a.tit||'Lição '+a.num)}</div><div class="ldata">${a.data?fmtData(a.data):'sem data'}</div></div>
+      <div class="cont"><b id="contPres">${pres}</b><b style="opacity:.6">/${D.alunos.length}</b><small>presentes</small></div>
+    </div>
+    <div class="barra"><button class="btn btn-sec" onclick="marcarTodos(true)">Todos presentes</button><button class="btn btn-sec" onclick="marcarTodos(false)">Limpar</button></div>
+    <div class="chamada">${[...D.alunos].sort(porNome).map(x=>`<button class="pres ${p[x.id]?'p':''}" data-id="${x.id}" onclick="alternaPres(this)"><div class="avatar">${esc(iniciais(x.nome))}</div><span class="nm">${esc(x.nome)}</span><span class="tag">${p[x.id]?'PRESENTE':'FALTA'}</span></button>`).join('')}</div>`;
+}
+function alternaPres(btn){
+  const id=btn.dataset.id;D.pres[aulaAtual]=D.pres[aulaAtual]||{};
+  const v=!D.pres[aulaAtual][id];if(v)D.pres[aulaAtual][id]=1;else delete D.pres[aulaAtual][id];
+  btn.classList.toggle('p',v);btn.querySelector('.tag').textContent=v?'PRESENTE':'FALTA';
+  $('#contPres').textContent=Object.keys(D.pres[aulaAtual]).length;salvar();
+  if(navigator.vibrate)navigator.vibrate(15);
+}
+function marcarTodos(v){D.pres[aulaAtual]={};if(v)D.alunos.forEach(a=>D.pres[aulaAtual][a.id]=1);salvar();rChamada()}
+function abrirAula(id){
+  aulaEdit=id||null;const a=D.aulas.find(x=>x.id===id);
+  $('#mAulaTit').textContent=a?'Editar aula':'Nova aula';
+  $('#aNum').value=a?a.num:(D.aulas.reduce((m,x)=>Math.max(m,x.num),0)+1);
+  $('#aTit').value=a?a.tit:'';$('#aData').value=a?a.data:hoje();
+  $('#btnExcluirAula').style.display=a?'':'none';$('#btnExcluirAula').onclick=()=>excluirAula(id);
+  abrir('mAula');
+}
+function salvarAula(){
+  const num=parseInt($('#aNum').value,10);if(!num||num<1){toast('Informe o número da lição');return}
+  const dados={num,tit:$('#aTit').value.trim(),data:$('#aData').value};
+  if(aulaEdit)Object.assign(D.aulas.find(x=>x.id===aulaEdit),dados);
+  else{const id=uid();D.aulas.push({id,...dados});D.pres[id]={};aulaAtual=id}
+  salvar();fechar('mAula');rChamada();toast(aulaEdit?'Aula atualizada':'Aula criada — faça a chamada');
+}
+function excluirAula(id){
+  if(!confirm('Excluir esta aula e todas as presenças dela?'))return;
+  D.aulas=D.aulas.filter(x=>x.id!==id);delete D.pres[id];aulaAtual=null;
+  salvar();fechar('mAula');rChamada();toast('Aula excluída');
+}
+
+/* ================= Frequência (grade) ================= */
+$('#buscaFreq').oninput=rFreq;$('#ordFreq').onchange=rFreq;
+function rFreq(){
+  $('#lblMin').textContent=D.cfg.min+'%';
+  const aulas=aulasOrd();const fs=D.alunos.map(a=>({a,f:freqDe(a.id)}));
+  const comPct=fs.filter(x=>x.f.pct!==null);
+  const media=comPct.length?Math.round(comPct.reduce((s,x)=>s+x.f.pct,0)/comPct.length):0;
+  const aptos=comPct.filter(x=>x.f.pct>=D.cfg.min).length;
+  $('#stats').innerHTML=[[D.alunos.length,'Matriculados'],[aulas.length,'Aulas realizadas'],[aulas.length?media+'%':'—','Frequência média'],[aulas.length?aptos:'—',`Aptos (≥ ${D.cfg.min}%)`]]
+    .map(([n,l])=>`<div class="card stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
+  const el=$('#areaGrade');
+  if(!D.alunos.length||!aulas.length){el.innerHTML=`<div class="vazio"><div class="ic"><svg class="i"><use href="#i-chart"/></svg></div><h3>Sem dados ainda</h3><p>${!D.alunos.length?'Cadastre os matriculados':'Crie a primeira aula na aba Chamada'} para ver a frequência.</p></div>`;return}
+  const q=semAcento($('#buscaFreq').value.trim());const ord=$('#ordFreq').value;
+  let lista=fs.filter(x=>!q||semAcento(x.a.nome).includes(q));
+  lista.sort(ord==='nome'?(x,y)=>porNome(x.a,y.a):ord==='maior'?(x,y)=>y.f.pct-x.f.pct||porNome(x.a,y.a):(x,y)=>x.f.pct-y.f.pct||porNome(x.a,y.a));
+  el.innerHTML=`<table class="grade"><thead><tr><th>Aluno</th>${aulas.map(a=>`<th title="${esc(rotAula(a))}">L${String(a.num).padStart(2,'0')}<small>${a.data?fmtData(a.data).slice(0,5):''}</small></th>`).join('')}<th>Presenças</th><th>Frequência</th></tr></thead><tbody>
+  ${lista.map(({a,f})=>`<tr><td title="${esc(a.nome)}">${esc(a.nome)}</td>${aulas.map(au=>{const p=D.pres[au.id]&&D.pres[au.id][a.id];return`<td><button class="cel ${p?'P':'F'}" onclick="celula('${au.id}','${a.id}')">${p?'P':'F'}</button></td>`}).join('')}
+  <td><b>${f.p}</b>/${f.tot}</td><td><div class="pct"><div class="bar"><i style="width:${f.pct}%"></i></div><b style="color:${f.pct>=D.cfg.min?'var(--verde)':'var(--verm)'}">${f.pct}%</b></div></td></tr>`).join('')}
+  </tbody></table>`;
+}
+function celula(au,al){D.pres[au]=D.pres[au]||{};if(D.pres[au][al])delete D.pres[au][al];else D.pres[au][al]=1;salvar();const sx=$('#areaGrade').scrollLeft,sy=window.scrollY;rFreq();$('#areaGrade').scrollLeft=sx;window.scrollTo(0,sy)}
+function csv(linhas){return'﻿'+linhas.map(l=>l.map(c=>{c=String(c??'');return/[;"\n]/.test(c)?`"${c.replace(/"/g,'""')}"`:c}).join(';')).join('\r\n')}
+function exportarCSV(){
+  const aulas=aulasOrd();
+  const l=[['Nº','Aluno',...aulas.map(a=>`L${String(a.num).padStart(2,'0')} ${fmtData(a.data)}`),'Presenças','Faltas','Frequência','Situação']];
+  [...D.alunos].sort(porNome).forEach((a,i)=>{const f=freqDe(a.id);l.push([i+1,a.nome,...aulas.map(au=>D.pres[au.id]&&D.pres[au.id][a.id]?'P':'F'),f.p,f.tot-f.p,(f.pct??0)+'%',f.pct>=D.cfg.min?'Apto':'Abaixo do mínimo'])});
+  baixar(`Frequencia_CBCJ_${D.cfg.turma}.csv`,csv(l),'text/csv;charset=utf-8');
+}
+function exportarAlunos(){
+  const l=[['Nº','Nome completo','Endereço','Telefone','Frequência']];
+  [...D.alunos].sort(porNome).forEach((a,i)=>{const f=freqDe(a.id);l.push([i+1,a.nome,a.end,a.tel,f.pct===null?'':f.pct+'%'])});
+  baixar(`Matriculados_CBCJ_${D.cfg.turma}.csv`,csv(l),'text/csv;charset=utf-8');
+}
+
+/* ================= Sorteio ================= */
+let LARG=232; // largura do cartão + margens (ajustada à tela)
+function medeCartao(){const cw=Math.min(220,Math.round($('#janela').clientWidth*0.56));$('#fita').style.setProperty('--cw',cw+'px');LARG=cw+12}
+let girando=false,ctxAudio=null;
+['luzesC','luzesB'].forEach(id=>$('#'+id).innerHTML='<i></i>'.repeat(14));
+$('#sortFiltro').onchange=()=>{$('#boxSortAula').style.display=$('#sortFiltro').value==='aula'?'':'none';rSorteio()};
+$('#sortAula').onchange=rSorteio;$('#sortSemRepetir').onchange=rSorteio;
+function pool(){
+  let l=[...D.alunos];const f=$('#sortFiltro').value;
+  if(f==='aptos')l=l.filter(a=>{const x=freqDe(a.id);return x.pct!==null&&x.pct>=D.cfg.min});
+  if(f==='aula'){const au=$('#sortAula').value;l=l.filter(a=>D.pres[au]&&D.pres[au][a.id])}
+  if($('#sortSemRepetir').checked){const ja=new Set(D.sorteios.map(s=>s.id));l=l.filter(a=>!ja.has(a.id))}
+  return l;
+}
+function rSorteio(){
+  const aulas=aulasOrd();const sa=$('#sortAula');const v=sa.value;
+  sa.innerHTML=aulas.length?aulas.map(a=>`<option value="${a.id}">${esc(rotAula(a))}</option>`).join(''):'<option value="">Nenhuma aula</option>';
+  if(aulas.find(a=>a.id===v))sa.value=v;else if(aulas.length)sa.value=aulas[aulas.length-1].id;
+  $('#btnSom').style.color=D.cfg.som?'var(--vinho)':'';$('#btnSom').style.opacity=D.cfg.som?1:.45;
+  const p=pool();
+  $('#poolInfo').innerHTML=`<b>${p.length}</b> nome${p.length!==1?'s':''} na roleta`;
+  $('#btnSortear').disabled=!p.length;
+  if(!girando)montarFita(p.length?p:D.alunos,null);
+  const h=$('#listaHist');
+  h.innerHTML=D.sorteios.length?[...D.sorteios].reverse().map((s,i)=>`<li><span class="pos">${D.sorteios.length-i}º</span><span class="q">${esc(s.nome)}</span><small>${new Date(s.quando).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small></li>`).join(''):'<li style="background:none;color:var(--suave);justify-content:center">Nenhum sorteio ainda</li>';
+}
+function embaralha(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function montarFita(lista,vencedor){
+  const fita=$('#fita');fita.style.transition='none';medeCartao();
+  if(!lista.length){fita.innerHTML=`<div class="nm-card" style="margin-left:calc(50% - var(--cw,220px)/2 - 6px)">Cadastre alunos</div>`;fita.style.transform='translateX(0)';return 0}
+  let itens=[];const min=vencedor?70:12;
+  while(itens.length<min)itens=itens.concat(embaralha(lista));
+  let alvo=0;
+  if(vencedor){alvo=itens.length-5;itens[alvo]=vencedor;if(itens[alvo-1]&&itens[alvo-1].id===vencedor.id&&lista.length>1)itens[alvo-1]=lista.find(x=>x.id!==vencedor.id)}
+  fita.innerHTML=itens.map(a=>`<div class="nm-card">${esc(a.nome)}</div>`).join('');
+  const w=$('#janela').clientWidth;
+  const ini=vencedor?0:-(Math.floor(itens.length/2)*LARG+LARG/2-w/2);
+  fita.style.transform=`translateX(${ini}px)`;
+  return alvo;
+}
+function sortear(){
+  if(girando)return;const p=pool();if(!p.length){toast('Não há nomes para sortear');return}
+  const arr=new Uint32Array(1);crypto.getRandomValues(arr);
+  const venc=p[arr[0]%p.length];
+  girando=true;$('#btnSortear').disabled=true;
+  const maq=$('#maquina');maq.classList.remove('ganhou');maq.classList.add('girando');
+  const alvo=montarFita(p,venc);
+  const w=$('#janela').clientWidth;
+  const jitter=(Math.random()-.5)*(LARG*.5);
+  const fim=-(alvo*LARG+LARG/2-w/2)+jitter*0.6;
+  const dur=6200+Math.random()*900;const t0=performance.now();const fita=$('#fita');
+  let ultimo=0;
+  const ease=t=>1-Math.pow(1-t,4.2);
+  (function passo(t){
+    const k=Math.min(1,(t-t0)/dur);const x=fim*ease(k);
+    fita.style.transform=`translateX(${x}px)`;
+    const idx=Math.floor((-x+w/2)/LARG);if(idx!==ultimo){ultimo=idx;tique()}
+    if(k<1)requestAnimationFrame(passo);
+    else{ // ajuste suave ao centro
+      fita.style.transition='transform .45s cubic-bezier(.3,1.4,.5,1)';
+      fita.style.transform=`translateX(${-(alvo*LARG+LARG/2-w/2)}px)`;
+      setTimeout(()=>{fita.children[alvo].classList.add('vence');maq.classList.remove('girando');maq.classList.add('ganhou');fanfarra();
+        D.sorteios.push({id:venc.id,nome:venc.nome,quando:Date.now()});salvar();
+        setTimeout(()=>{$('#nomeVence').textContent=venc.nome;abrir('mVence');confete();girando=false;rSorteio()},700)},480);
+    }
+  })(t0);
+}
+function audio(){if(!D.cfg.som)return null;try{ctxAudio=ctxAudio||new(window.AudioContext||window.webkitAudioContext)();return ctxAudio}catch(e){return null}}
+function tique(){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=1500;g.gain.setValueAtTime(.05,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.04);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.05)}
+function fanfarra(){const c=audio();if(!c)return;[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.12;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.5);o.connect(g).connect(c.destination);o.start(t);o.stop(t+.55)})}
+function alternaSom(){D.cfg.som=!D.cfg.som;salvar();rSorteio();toast(D.cfg.som?'Som ligado':'Som desligado')}
+function limparHist(){if(!D.sorteios.length)return;if(!confirm('Limpar o histórico de sorteados? Todos voltam a participar.'))return;D.sorteios=[];salvar();rSorteio()}
+function confete(){
+  const cv=$('#confete'),c=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const cores=['#8E1B2E','#C9962B','#E9C77B','#5E0F1D','#ffffff'];
+  const ps=Array.from({length:160},()=>({x:innerWidth/2+(Math.random()-.5)*120,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:Math.random()*6+4,c:cores[Math.random()*cores.length|0],a:Math.random()*6,va:(Math.random()-.5)*.3}));
+  const t0=performance.now();
+  (function f(t){c.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);c.restore()});
+    if(t-t0<3200)requestAnimationFrame(f);else c.clearRect(0,0,cv.width,cv.height)})(t0);
+}
+addEventListener('resize',()=>{if(!girando&&$('#t-sorteio').classList.contains('ativa'))rSorteio()});
+
+/* ================= Dados ================= */
+function rDados(){$('#cfgTurma').value=D.cfg.turma;$('#cfgMin').value=D.cfg.min}
+function salvarCfg(){
+  const m=parseInt($('#cfgMin').value,10);
+  D.cfg.turma=$('#cfgTurma').value.trim()||'2026';D.cfg.min=isNaN(m)?75:Math.max(0,Math.min(100,m));
+  salvar();aplicaCfg();toast('Ajustes salvos');
+}
+function aplicaCfg(){$('#tituloTurma').textContent=D.cfg.turma}
+function backup(){baixar(`Backup_CBCJ_${D.cfg.turma}_${hoje()}.json`,JSON.stringify(D,null,1),'application/json');toast('Cópia baixada')}
+function restaurar(inp){
+  const f=inp.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.alunos))throw 0;
+    if(!confirm(`Restaurar a cópia com ${x.alunos.length} alunos e ${(x.aulas||[]).length} aulas? Os dados atuais deste aparelho serão substituídos.`))return;
+    localStorage.setItem(CHAVE,JSON.stringify(x));carregar();aplicaCfg();rDados();toast('Dados restaurados')}catch(e){toast('Arquivo inválido')}inp.value=''};
+  r.readAsText(f);
+}
+function zerar(){if(!confirm('Apagar TODOS os dados deste aparelho?'))return;if(!confirm('Tem certeza? Isso não pode ser desfeito.'))return;D=structuredClone(PADRAO);salvar();aplicaCfg();irPara('alunos');toast('Dados apagados')}
+
+/* ================= Início ================= */
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.aberto').forEach(m=>fechar(m.id));if(e.key==='Enter'&&$('#mAluno').classList.contains('aberto'))salvarAluno()});
+aplicaCfg();rAlunos();
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
