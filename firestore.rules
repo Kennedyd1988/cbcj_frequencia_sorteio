@@ -1,0 +1,17 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // E-mails autorizados a usar o app (sempre em letras minúsculas).
+    // Para liberar outro professor, acrescente o e-mail na lista.
+    function permitido() {
+      return request.auth != null && request.auth.token.email in [
+        'kennedyfrancelino@gmail.com'
+      ];
+    }
+
+    match /turmas/{caminho=**} {
+      allow read, write: if permitido();
+    }
+  }
+}

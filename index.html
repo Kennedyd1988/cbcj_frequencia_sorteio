@@ -239,11 +239,55 @@ canvas#confete{position:fixed;inset:0;pointer-events:none;z-index:60}
 .novidades ul{margin:4px 0 0;padding-left:18px;list-style:disc;color:var(--tinta);font-size:13px}
 .passos-ios{margin:0;padding-left:20px;display:grid;gap:10px}
 .passos-ios li{font-size:14px}
+
+#portao{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--vinho-esc);overflow:auto}
+#portao::before{content:"";position:absolute;inset:0;background:url(assets/cruz.jpg) center 35%/cover no-repeat;opacity:.55}
+#portao::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(94,15,29,.55),rgba(94,15,29,.95) 70%)}
+body[data-estado="pronto"] #portao{display:none}
+body:not([data-estado="pronto"]){overflow:hidden}
+.portao-caixa{position:relative;z-index:1;width:100%;max-width:380px;text-align:center;color:#fff}
+.portao-caixa>img{width:230px;max-width:80%;filter:drop-shadow(0 3px 10px rgba(0,0,0,.4))}
+.p-sub{color:var(--ouro-claro);font-family:Lora,serif;font-weight:600;margin:10px 0 22px;font-size:15px}
+.painel{display:none;background:rgba(255,255,255,.97);color:var(--tinta);border-radius:20px;padding:22px;text-align:left;box-shadow:0 20px 50px rgba(0,0,0,.35);border-top:4px solid var(--ouro)}
+body[data-estado="carregando"] .painel[data-p="carregando"],body[data-estado="login"] .painel[data-p="login"],body[data-estado="semAcesso"] .painel[data-p="semAcesso"],body[data-estado="config"] .painel[data-p="config"],body[data-estado="erro"] .painel[data-p="erro"]{display:block}
+.painel h3{margin:0 0 14px;color:var(--vinho-esc);font-size:19px}
+.painel p{margin:0 0 14px;font-size:14px;color:var(--suave)}
+.painel .btn{width:100%}
+.painel .link{display:block;margin:14px auto 0;background:none;border:0;color:var(--vinho);font-weight:600;font-size:13px;text-decoration:underline}
+.painel .erro{color:var(--verm);font-size:13px;min-height:18px;margin:-4px 0 10px;font-weight:600}
+.painel[data-p="carregando"]{text-align:center}
+.gira{width:38px;height:38px;margin:4px auto 12px;border-radius:50%;border:4px solid var(--creme-2);border-top-color:var(--vinho);animation:gira .8s linear infinite}
+@keyframes gira{to{transform:rotate(360deg)}}
+.nuvem-st{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.14);color:#fff;margin-top:6px;border:1px solid rgba(255,255,255,.2)}
+.nuvem-st i{width:8px;height:8px;border-radius:50%;background:#5fd38d;box-shadow:0 0 6px #5fd38d}
+.nuvem-st.off i{background:var(--ouro-claro);box-shadow:0 0 6px var(--ouro-claro)}
+.conta{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--creme);margin-bottom:12px}
+.conta .avatar{width:40px;height:40px;font-size:15px}
+.conta b{display:block;font-size:14px;word-break:break-all}
+.conta small{color:var(--suave);font-size:12px}
 footer{text-align:center;color:var(--suave);font-size:12px;padding:10px 16px 20px}
 footer .serif{color:var(--vinho);font-style:italic}
 </style>
 </head>
-<body>
+<body data-estado="carregando">
+<div id="portao">
+  <div class="portao-caixa">
+    <img src="assets/logo-claro.png" alt="Curso Bíblico Conhecendo Jesus">
+    <div class="p-sub">2026 · Igreja de Cristo em Riacho da Cruz</div>
+    <div class="painel" data-p="carregando"><div class="gira"></div><p style="margin:0">Conectando à nuvem…</p></div>
+    <form class="painel" data-p="login" onsubmit="entrar(event)">
+      <h3>Entrar</h3>
+      <div class="campo"><label for="lEmail">E-mail</label><input id="lEmail" type="email" autocomplete="username" inputmode="email" required></div>
+      <div class="campo"><label for="lSenha">Senha</label><input id="lSenha" type="password" autocomplete="current-password" required></div>
+      <div class="erro" id="lErro"></div>
+      <button class="btn btn-pri" id="btnEntrar" type="submit">Entrar</button>
+      <button type="button" class="link" onclick="esqueci()">Esqueci minha senha</button>
+    </form>
+    <div class="painel" data-p="semAcesso"><h3>Acesso não liberado</h3><p>O e-mail <b id="saEmail"></b> ainda não tem permissão para usar o app do curso. Peça ao responsável para liberar.</p><button class="btn btn-sec" onclick="sair()">Entrar com outra conta</button></div>
+    <div class="painel" data-p="config"><h3>Falta configurar</h3><p>Preencha o arquivo <b>firebase-config.js</b> com os dados do seu projeto Firebase (veja o README).</p></div>
+    <div class="painel" data-p="erro"><h3>Sem conexão</h3><p id="erroTxt"></p><button class="btn btn-pri" onclick="location.reload()">Tentar de novo</button></div>
+  </div>
+</div>
 
 <!-- Ícones -->
 <svg width="0" height="0" style="position:absolute">
@@ -281,6 +325,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <div class="txt">
       <div class="ano" id="tituloTurma">2026</div>
       <div class="igreja">Igreja de Cristo em Riacho da Cruz</div>
+      <span class="nuvem-st" id="stNuvem"><i></i><span>Na nuvem</span></span>
     </div>
     <button class="btn-instalar" id="btnInstalar" onclick="instalar()"><svg class="i"><use href="#i-install"/></svg><span>Instalar app</span></button>
   </div>
@@ -393,8 +438,13 @@ footer .serif{color:var(--vinho);font-style:italic}
     <div class="ic"><svg class="i"><use href="#i-gear"/></svg></div>
     <div><h2>Dados e ajustes</h2><p>Cópia de segurança e configurações da turma</p></div>
   </div>
-  <div class="aviso"><svg class="i"><use href="#i-info"/></svg><div>Os dados ficam salvos <b>neste aparelho e neste navegador</b>. Faça uma cópia de segurança com frequência e use “Restaurar” para levar os dados para outro celular ou computador.</div></div>
+  <div class="aviso"><svg class="i"><use href="#i-info"/></svg><div>Os dados ficam salvos <b>na nuvem</b> e aparecem iguais em todos os aparelhos em que você entrar. Sem internet, o app continua funcionando e envia tudo quando a conexão voltar.</div></div>
   <div class="dados-grid">
+    <div class="card bloco">
+      <h3>Conta</h3>
+      <div class="conta"><div class="avatar"><svg class="i"><use href="#i-users"/></svg></div><div><b id="contaEmail"></b><small>Conectado</small></div></div>
+      <button class="btn btn-sec" onclick="if(confirm('Sair da conta neste aparelho?'))sair()">Sair</button>
+    </div>
     <div class="card bloco">
       <h3>Configurações</h3>
       <p>Usadas no cabeçalho e no cálculo de aptos ao certificado.</p>
@@ -404,7 +454,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     </div>
     <div class="card bloco">
       <h3>Cópia de segurança</h3>
-      <p>Baixa um arquivo com alunos, aulas, presenças e sorteios.</p>
+      <p>Baixa um arquivo com alunos, aulas, presenças e sorteios. “Restaurar” envia uma cópia para a nuvem.</p>
       <div class="btns">
         <button class="btn btn-ouro" onclick="backup()"><svg class="i"><use href="#i-down"/></svg>Baixar cópia</button>
         <label class="btn btn-sec"><svg class="i"><use href="#i-up"/></svg>Restaurar<input type="file" accept=".json,application/json" hidden onchange="restaurar(this)"></label>
@@ -423,7 +473,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     </div>
     <div class="card bloco">
       <h3>Começar do zero</h3>
-      <p>Apaga todos os dados deste aparelho. Baixe uma cópia antes.</p>
+      <p>Apaga todos os dados do curso na nuvem, em todos os aparelhos. Baixe uma cópia antes.</p>
       <button class="btn btn-perigo" onclick="zerar()"><svg class="i"><use href="#i-trash"/></svg>Apagar tudo</button>
     </div>
   </div>
@@ -515,358 +565,21 @@ footer .serif{color:var(--vinho);font-style:italic}
   </div>
 </div>
 <div class="atualiza" id="barraAtualiza"><svg class="i"><use href="#i-refresh"/></svg><div><b>Nova versão <span id="lblNova"></span> disponível</b><small>Toque em atualizar para carregar as novidades. Seus dados continuam salvos.</small></div><button class="btn btn-ouro" onclick="aplicarAtualizacao()">Atualizar</button></div>
+<div class="modal" id="mMigra">
+  <div class="caixa">
+    <div class="cab"><h3>Dados encontrados neste aparelho</h3></div>
+    <div class="corpo">
+      <p style="margin:0 0 10px" id="migraTxt"></p>
+      <p style="margin:0;color:var(--suave);font-size:13px">Quer enviar esses dados para a nuvem? Assim eles ficam disponíveis em todos os aparelhos.</p>
+      <p id="migraAviso" style="margin:10px 0 0;color:var(--suave);font-size:13px">A nuvem já tem alunos: só serão incluídos os nomes que ainda não estão lá.</p>
+    </div>
+    <div class="rod"><button class="btn btn-sec" onclick="migrar(false)">Agora não</button><button class="btn btn-pri" onclick="migrar(true)">Enviar para a nuvem</button></div>
+  </div>
+</div>
 <canvas id="confete"></canvas>
 <div class="toast" id="toast"></div>
 
-<script>
-/* ================= Armazenamento ================= */
-const CHAVE='cbcj2026_frequencia';
-const PADRAO={alunos:[],aulas:[],pres:{},sorteios:[],cfg:{turma:'2026',min:75,som:true}};
-let D;
-function carregar(){
-  try{D=JSON.parse(localStorage.getItem(CHAVE))||null}catch(e){D=null}
-  D=Object.assign(structuredClone(PADRAO),D||{});
-  D.cfg=Object.assign({},PADRAO.cfg,D.cfg||{});
-}
-function salvar(){try{localStorage.setItem(CHAVE,JSON.stringify(D))}catch(e){toast('Não foi possível salvar neste navegador')}}
-carregar();
-
-/* ================= Utilidades ================= */
-const $=s=>document.querySelector(s);
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const iniciais=n=>{const p=n.trim().split(/\s+/).filter(x=>x.length>2||x===x.toUpperCase());const a=n.trim().split(/\s+/);return((a[0]||'')[0]||'').toUpperCase()+((a.length>1?a[a.length-1]:'')[0]||'').toUpperCase()};
-const semAcento=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-const porNome=(a,b)=>a.nome.localeCompare(b.nome,'pt-BR');
-const fmtData=d=>{if(!d)return'';const[y,m,dd]=d.split('-');return`${dd}/${m}/${y}`};
-const hoje=()=>{const t=new Date();t.setMinutes(t.getMinutes()-t.getTimezoneOffset());return t.toISOString().slice(0,10)};
-function fmtTel(v){const d=v.replace(/\D/g,'').slice(0,11);if(d.length<=2)return d?`(${d}`:'';if(d.length<=6)return`(${d.slice(0,2)}) ${d.slice(2)}`;if(d.length<=10)return`(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;return`(${d.slice(0,2)}) ${d.slice(2,3)} ${d.slice(3,7)}-${d.slice(7)}`}
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2200)}
-function abrir(id){$('#'+id).classList.add('aberto')}
-function fechar(id){$('#'+id).classList.remove('aberto')}
-document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m&&m.id!=='mVence')fechar(m.id)}));
-function baixar(nome,conteudo,tipo){const b=new Blob([conteudo],{type:tipo});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500)}
-
-/* ================= Frequência (cálculo) ================= */
-function aulasOrd(){return[...D.aulas].sort((a,b)=>(a.num-b.num)||String(a.data).localeCompare(b.data))}
-function freqDe(id){
-  const tot=D.aulas.length;if(!tot)return{p:0,tot:0,pct:null};
-  let p=0;D.aulas.forEach(a=>{if(D.pres[a.id]&&D.pres[a.id][id])p++});
-  return{p,tot,pct:Math.round(p/tot*100)};
-}
-function classeFreq(pct){return pct===null?'neutro':pct>=D.cfg.min?'ok':'alerta'}
-
-/* ================= Navegação ================= */
-document.querySelectorAll('nav.abas button').forEach(b=>b.onclick=()=>irPara(b.dataset.tela));
-function irPara(t){
-  document.querySelectorAll('nav.abas button').forEach(b=>b.classList.toggle('ativo',b.dataset.tela===t));
-  document.querySelectorAll('.tela').forEach(s=>s.classList.toggle('ativa',s.id==='t-'+t));
-  ({alunos:rAlunos,chamada:rChamada,freq:rFreq,sorteio:rSorteio,dados:rDados})[t]();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-/* ================= Matriculados ================= */
-let alunoEdit=null;
-$('#buscaAluno').oninput=rAlunos;
-$('#fTel').oninput=e=>e.target.value=fmtTel(e.target.value);
-function rAlunos(){
-  const q=semAcento($('#buscaAluno').value.trim());
-  const n=D.alunos.length;
-  $('#contAlunos').textContent=n?`${n} aluno${n>1?'s':''} matriculado${n>1?'s':''}`:'Nenhum aluno ainda';
-  const lista=[...D.alunos].sort(porNome).filter(a=>!q||semAcento(a.nome+' '+a.end+' '+a.tel).includes(q));
-  const el=$('#listaAlunos');
-  if(!n){el.innerHTML=`<div class="card vazio" style="grid-column:1/-1"><div class="ic"><svg class="i"><use href="#i-users"/></svg></div><h3>Nenhum matriculado</h3><p>Toque em <b>Matricular</b> para cadastrar o primeiro aluno do curso.</p></div>`;return}
-  if(!lista.length){el.innerHTML=`<div class="vazio" style="grid-column:1/-1">Nenhum aluno encontrado.</div>`;return}
-  const ord=[...D.alunos].sort(porNome);
-  el.innerHTML=lista.map(a=>{
-    const f=freqDe(a.id);const tel=a.tel.replace(/\D/g,'');
-    return`<div class="card aluno">
-      <div class="avatar">${esc(iniciais(a.nome))}</div>
-      <div class="info">
-        <div class="nome"><span class="num">${String(ord.indexOf(a)+1).padStart(2,'0')}</span>${esc(a.nome)}</div>
-        ${a.end?`<div class="det"><svg class="i"><use href="#i-pin"/></svg><span>${esc(a.end)}</span></div>`:''}
-        ${a.tel?`<div class="det"><svg class="i"><use href="#i-phone"/></svg><span>${esc(a.tel)}</span></div>`:''}
-      </div>
-      <div class="acts">
-        <span class="mini-freq ${classeFreq(f.pct)}">${f.pct===null?'sem aulas':f.pct+'%'}</span>
-        <div>
-          ${tel?`<a class="btn-ic" title="WhatsApp" target="_blank" rel="noopener" href="https://wa.me/55${tel}"><svg class="i"><use href="#i-wa"/></svg></a>`:''}
-          <button class="btn-ic" title="Editar" onclick="abrirAluno('${a.id}')"><svg class="i"><use href="#i-edit"/></svg></button>
-        </div>
-      </div></div>`}).join('');
-}
-function abrirAluno(id){
-  alunoEdit=id||null;const a=D.alunos.find(x=>x.id===id);
-  $('#mAlunoTit').textContent=a?'Editar matrícula':'Nova matrícula';
-  $('#fNome').value=a?a.nome:'';$('#fEnd').value=a?a.end:'';$('#fTel').value=a?a.tel:'';
-  $('#btnExcluirAluno').style.display=a?'':'none';
-  $('#btnExcluirAluno').onclick=()=>excluirAluno(id);
-  abrir('mAluno');setTimeout(()=>$('#fNome').focus(),100);
-}
-function salvarAluno(){
-  const nome=$('#fNome').value.trim().replace(/\s+/g,' ');
-  if(!nome){toast('Informe o nome completo');$('#fNome').focus();return}
-  const dup=D.alunos.find(x=>semAcento(x.nome)===semAcento(nome)&&x.id!==alunoEdit);
-  if(dup&&!confirm('Já existe um aluno com esse nome. Salvar mesmo assim?'))return;
-  const dados={nome,end:$('#fEnd').value.trim(),tel:$('#fTel').value.trim()};
-  if(alunoEdit)Object.assign(D.alunos.find(x=>x.id===alunoEdit),dados);
-  else D.alunos.push({id:uid(),...dados,criado:Date.now()});
-  salvar();fechar('mAluno');rAlunos();toast(alunoEdit?'Matrícula atualizada':'Aluno matriculado');
-}
-function excluirAluno(id){
-  const a=D.alunos.find(x=>x.id===id);
-  if(!confirm(`Excluir a matrícula de ${a.nome}? As presenças dele também serão apagadas.`))return;
-  D.alunos=D.alunos.filter(x=>x.id!==id);
-  Object.values(D.pres).forEach(p=>delete p[id]);
-  salvar();fechar('mAluno');rAlunos();toast('Matrícula excluída');
-}
-function abrirLote(){$('#fLote').value='';abrir('mLote');setTimeout(()=>$('#fLote').focus(),100)}
-function salvarLote(){
-  const linhas=$('#fLote').value.split('\n').map(l=>l.trim()).filter(Boolean);let c=0;
-  linhas.forEach(l=>{const[nome,end='',tel='']=l.split(/[;\t]/).map(s=>s.trim());
-    if(nome&&!D.alunos.some(x=>semAcento(x.nome)===semAcento(nome))){D.alunos.push({id:uid(),nome:nome.replace(/\s+/g,' '),end,tel:tel?fmtTel(tel):'',criado:Date.now()});c++}});
-  salvar();fechar('mLote');rAlunos();toast(c?`${c} aluno${c>1?'s':''} matriculado${c>1?'s':''}`:'Nenhum nome novo');
-}
-
-/* ================= Chamada ================= */
-let aulaAtual=null,aulaEdit=null;
-$('#selAula').onchange=e=>{aulaAtual=e.target.value;rChamada()};
-function rotAula(a){return`Lição ${String(a.num).padStart(2,'0')}${a.tit?' – '+a.tit:''}${a.data?' · '+fmtData(a.data):''}`}
-function rChamada(){
-  const aulas=aulasOrd();const sel=$('#selAula');
-  if(!aulas.find(a=>a.id===aulaAtual))aulaAtual=aulas.length?aulas[aulas.length-1].id:null;
-  sel.innerHTML=aulas.length?aulas.map(a=>`<option value="${a.id}" ${a.id===aulaAtual?'selected':''}>${esc(rotAula(a))}</option>`).join(''):'<option>Nenhuma aula criada</option>';
-  sel.disabled=!aulas.length;$('#btnEditAula').style.display=aulas.length?'':'none';
-  const el=$('#areaChamada');
-  if(!aulas.length){el.innerHTML=`<div class="card vazio"><div class="ic"><svg class="i"><use href="#i-book"/></svg></div><h3>Nenhuma aula registrada</h3><p>Toque em <b>Nova aula</b> para abrir a chamada da primeira lição.</p></div>`;return}
-  if(!D.alunos.length){el.innerHTML=`<div class="card vazio"><div class="ic"><svg class="i"><use href="#i-users"/></svg></div><h3>Ninguém matriculado</h3><p>Cadastre os alunos na aba <b>Matriculados</b>.</p></div>`;return}
-  const a=D.aulas.find(x=>x.id===aulaAtual);const p=D.pres[a.id]||{};
-  const pres=D.alunos.filter(x=>p[x.id]).length;
-  el.innerHTML=`<div class="card aula-info">
-      <div class="lnum">${String(a.num).padStart(2,'0')}</div>
-      <div><div class="ltit">${esc(a.tit||'Lição '+a.num)}</div><div class="ldata">${a.data?fmtData(a.data):'sem data'}</div></div>
-      <div class="cont"><b id="contPres">${pres}</b><b style="opacity:.6">/${D.alunos.length}</b><small>presentes</small></div>
-    </div>
-    <div class="barra"><button class="btn btn-sec" onclick="marcarTodos(true)">Todos presentes</button><button class="btn btn-sec" onclick="marcarTodos(false)">Limpar</button></div>
-    <div class="chamada">${[...D.alunos].sort(porNome).map(x=>`<button class="pres ${p[x.id]?'p':''}" data-id="${x.id}" onclick="alternaPres(this)"><div class="avatar">${esc(iniciais(x.nome))}</div><span class="nm">${esc(x.nome)}</span><span class="tag">${p[x.id]?'PRESENTE':'FALTA'}</span></button>`).join('')}</div>`;
-}
-function alternaPres(btn){
-  const id=btn.dataset.id;D.pres[aulaAtual]=D.pres[aulaAtual]||{};
-  const v=!D.pres[aulaAtual][id];if(v)D.pres[aulaAtual][id]=1;else delete D.pres[aulaAtual][id];
-  btn.classList.toggle('p',v);btn.querySelector('.tag').textContent=v?'PRESENTE':'FALTA';
-  $('#contPres').textContent=Object.keys(D.pres[aulaAtual]).length;salvar();
-  if(navigator.vibrate)navigator.vibrate(15);
-}
-function marcarTodos(v){D.pres[aulaAtual]={};if(v)D.alunos.forEach(a=>D.pres[aulaAtual][a.id]=1);salvar();rChamada()}
-function abrirAula(id){
-  aulaEdit=id||null;const a=D.aulas.find(x=>x.id===id);
-  $('#mAulaTit').textContent=a?'Editar aula':'Nova aula';
-  $('#aNum').value=a?a.num:(D.aulas.reduce((m,x)=>Math.max(m,x.num),0)+1);
-  $('#aTit').value=a?a.tit:'';$('#aData').value=a?a.data:hoje();
-  $('#btnExcluirAula').style.display=a?'':'none';$('#btnExcluirAula').onclick=()=>excluirAula(id);
-  abrir('mAula');
-}
-function salvarAula(){
-  const num=parseInt($('#aNum').value,10);if(!num||num<1){toast('Informe o número da lição');return}
-  const dados={num,tit:$('#aTit').value.trim(),data:$('#aData').value};
-  if(aulaEdit)Object.assign(D.aulas.find(x=>x.id===aulaEdit),dados);
-  else{const id=uid();D.aulas.push({id,...dados});D.pres[id]={};aulaAtual=id}
-  salvar();fechar('mAula');rChamada();toast(aulaEdit?'Aula atualizada':'Aula criada — faça a chamada');
-}
-function excluirAula(id){
-  if(!confirm('Excluir esta aula e todas as presenças dela?'))return;
-  D.aulas=D.aulas.filter(x=>x.id!==id);delete D.pres[id];aulaAtual=null;
-  salvar();fechar('mAula');rChamada();toast('Aula excluída');
-}
-
-/* ================= Frequência (grade) ================= */
-$('#buscaFreq').oninput=rFreq;$('#ordFreq').onchange=rFreq;
-function rFreq(){
-  $('#lblMin').textContent=D.cfg.min+'%';
-  const aulas=aulasOrd();const fs=D.alunos.map(a=>({a,f:freqDe(a.id)}));
-  const comPct=fs.filter(x=>x.f.pct!==null);
-  const media=comPct.length?Math.round(comPct.reduce((s,x)=>s+x.f.pct,0)/comPct.length):0;
-  const aptos=comPct.filter(x=>x.f.pct>=D.cfg.min).length;
-  $('#stats').innerHTML=[[D.alunos.length,'Matriculados'],[aulas.length,'Aulas realizadas'],[aulas.length?media+'%':'—','Frequência média'],[aulas.length?aptos:'—',`Aptos (≥ ${D.cfg.min}%)`]]
-    .map(([n,l])=>`<div class="card stat"><div class="n">${n}</div><div class="l">${l}</div></div>`).join('');
-  const el=$('#areaGrade');
-  if(!D.alunos.length||!aulas.length){el.innerHTML=`<div class="vazio"><div class="ic"><svg class="i"><use href="#i-chart"/></svg></div><h3>Sem dados ainda</h3><p>${!D.alunos.length?'Cadastre os matriculados':'Crie a primeira aula na aba Chamada'} para ver a frequência.</p></div>`;return}
-  const q=semAcento($('#buscaFreq').value.trim());const ord=$('#ordFreq').value;
-  let lista=fs.filter(x=>!q||semAcento(x.a.nome).includes(q));
-  lista.sort(ord==='nome'?(x,y)=>porNome(x.a,y.a):ord==='maior'?(x,y)=>y.f.pct-x.f.pct||porNome(x.a,y.a):(x,y)=>x.f.pct-y.f.pct||porNome(x.a,y.a));
-  el.innerHTML=`<table class="grade"><thead><tr><th>Aluno</th>${aulas.map(a=>`<th title="${esc(rotAula(a))}">L${String(a.num).padStart(2,'0')}<small>${a.data?fmtData(a.data).slice(0,5):''}</small></th>`).join('')}<th>Presenças</th><th>Frequência</th></tr></thead><tbody>
-  ${lista.map(({a,f})=>`<tr><td title="${esc(a.nome)}">${esc(a.nome)}</td>${aulas.map(au=>{const p=D.pres[au.id]&&D.pres[au.id][a.id];return`<td><button class="cel ${p?'P':'F'}" onclick="celula('${au.id}','${a.id}')">${p?'P':'F'}</button></td>`}).join('')}
-  <td><b>${f.p}</b>/${f.tot}</td><td><div class="pct"><div class="bar"><i style="width:${f.pct}%"></i></div><b style="color:${f.pct>=D.cfg.min?'var(--verde)':'var(--verm)'}">${f.pct}%</b></div></td></tr>`).join('')}
-  </tbody></table>`;
-}
-function celula(au,al){D.pres[au]=D.pres[au]||{};if(D.pres[au][al])delete D.pres[au][al];else D.pres[au][al]=1;salvar();const sx=$('#areaGrade').scrollLeft,sy=window.scrollY;rFreq();$('#areaGrade').scrollLeft=sx;window.scrollTo(0,sy)}
-function csv(linhas){return'﻿'+linhas.map(l=>l.map(c=>{c=String(c??'');return/[;"\n]/.test(c)?`"${c.replace(/"/g,'""')}"`:c}).join(';')).join('\r\n')}
-function exportarCSV(){
-  const aulas=aulasOrd();
-  const l=[['Nº','Aluno',...aulas.map(a=>`L${String(a.num).padStart(2,'0')} ${fmtData(a.data)}`),'Presenças','Faltas','Frequência','Situação']];
-  [...D.alunos].sort(porNome).forEach((a,i)=>{const f=freqDe(a.id);l.push([i+1,a.nome,...aulas.map(au=>D.pres[au.id]&&D.pres[au.id][a.id]?'P':'F'),f.p,f.tot-f.p,(f.pct??0)+'%',f.pct>=D.cfg.min?'Apto':'Abaixo do mínimo'])});
-  baixar(`Frequencia_CBCJ_${D.cfg.turma}.csv`,csv(l),'text/csv;charset=utf-8');
-}
-function exportarAlunos(){
-  const l=[['Nº','Nome completo','Endereço','Telefone','Frequência']];
-  [...D.alunos].sort(porNome).forEach((a,i)=>{const f=freqDe(a.id);l.push([i+1,a.nome,a.end,a.tel,f.pct===null?'':f.pct+'%'])});
-  baixar(`Matriculados_CBCJ_${D.cfg.turma}.csv`,csv(l),'text/csv;charset=utf-8');
-}
-
-/* ================= Sorteio ================= */
-let LARG=232; // largura do cartão + margens (ajustada à tela)
-function medeCartao(){const cw=Math.min(220,Math.round($('#janela').clientWidth*0.56));$('#fita').style.setProperty('--cw',cw+'px');LARG=cw+12}
-let girando=false,ctxAudio=null;
-['luzesC','luzesB'].forEach(id=>$('#'+id).innerHTML='<i></i>'.repeat(14));
-$('#sortFiltro').onchange=()=>{$('#boxSortAula').style.display=$('#sortFiltro').value==='aula'?'':'none';rSorteio()};
-$('#sortAula').onchange=rSorteio;$('#sortSemRepetir').onchange=rSorteio;
-function pool(){
-  let l=[...D.alunos];const f=$('#sortFiltro').value;
-  if(f==='aptos')l=l.filter(a=>{const x=freqDe(a.id);return x.pct!==null&&x.pct>=D.cfg.min});
-  if(f==='aula'){const au=$('#sortAula').value;l=l.filter(a=>D.pres[au]&&D.pres[au][a.id])}
-  if($('#sortSemRepetir').checked){const ja=new Set(D.sorteios.map(s=>s.id));l=l.filter(a=>!ja.has(a.id))}
-  return l;
-}
-function rSorteio(){
-  const aulas=aulasOrd();const sa=$('#sortAula');const v=sa.value;
-  sa.innerHTML=aulas.length?aulas.map(a=>`<option value="${a.id}">${esc(rotAula(a))}</option>`).join(''):'<option value="">Nenhuma aula</option>';
-  if(aulas.find(a=>a.id===v))sa.value=v;else if(aulas.length)sa.value=aulas[aulas.length-1].id;
-  $('#btnSom').style.color=D.cfg.som?'var(--vinho)':'';$('#btnSom').style.opacity=D.cfg.som?1:.45;
-  const p=pool();
-  $('#poolInfo').innerHTML=`<b>${p.length}</b> nome${p.length!==1?'s':''} na roleta`;
-  $('#btnSortear').disabled=!p.length;
-  if(!girando)montarFita(p.length?p:D.alunos,null);
-  const h=$('#listaHist');
-  h.innerHTML=D.sorteios.length?[...D.sorteios].reverse().map((s,i)=>`<li><span class="pos">${D.sorteios.length-i}º</span><span class="q">${esc(s.nome)}</span><small>${new Date(s.quando).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</small></li>`).join(''):'<li style="background:none;color:var(--suave);justify-content:center">Nenhum sorteio ainda</li>';
-}
-function embaralha(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function montarFita(lista,vencedor){
-  const fita=$('#fita');fita.style.transition='none';medeCartao();
-  if(!lista.length){fita.innerHTML=`<div class="nm-card" style="margin-left:calc(50% - var(--cw,220px)/2 - 6px)">Cadastre alunos</div>`;fita.style.transform='translateX(0)';return 0}
-  let itens=[];const min=vencedor?70:12;
-  while(itens.length<min)itens=itens.concat(embaralha(lista));
-  let alvo=0;
-  if(vencedor){alvo=itens.length-5;itens[alvo]=vencedor;if(itens[alvo-1]&&itens[alvo-1].id===vencedor.id&&lista.length>1)itens[alvo-1]=lista.find(x=>x.id!==vencedor.id)}
-  fita.innerHTML=itens.map(a=>`<div class="nm-card">${esc(a.nome)}</div>`).join('');
-  const w=$('#janela').clientWidth;
-  const ini=vencedor?0:-(Math.floor(itens.length/2)*LARG+LARG/2-w/2);
-  fita.style.transform=`translateX(${ini}px)`;
-  return alvo;
-}
-function sortear(){
-  if(girando)return;const p=pool();if(!p.length){toast('Não há nomes para sortear');return}
-  const arr=new Uint32Array(1);crypto.getRandomValues(arr);
-  const venc=p[arr[0]%p.length];
-  girando=true;$('#btnSortear').disabled=true;
-  const maq=$('#maquina');maq.classList.remove('ganhou');maq.classList.add('girando');
-  const alvo=montarFita(p,venc);
-  const w=$('#janela').clientWidth;
-  const jitter=(Math.random()-.5)*(LARG*.5);
-  const fim=-(alvo*LARG+LARG/2-w/2)+jitter*0.6;
-  const dur=6200+Math.random()*900;const t0=performance.now();const fita=$('#fita');
-  let ultimo=0;
-  const ease=t=>1-Math.pow(1-t,4.2);
-  (function passo(t){
-    const k=Math.min(1,(t-t0)/dur);const x=fim*ease(k);
-    fita.style.transform=`translateX(${x}px)`;
-    const idx=Math.floor((-x+w/2)/LARG);if(idx!==ultimo){ultimo=idx;tique()}
-    if(k<1)requestAnimationFrame(passo);
-    else{ // ajuste suave ao centro
-      fita.style.transition='transform .45s cubic-bezier(.3,1.4,.5,1)';
-      fita.style.transform=`translateX(${-(alvo*LARG+LARG/2-w/2)}px)`;
-      setTimeout(()=>{fita.children[alvo].classList.add('vence');maq.classList.remove('girando');maq.classList.add('ganhou');fanfarra();
-        D.sorteios.push({id:venc.id,nome:venc.nome,quando:Date.now()});salvar();
-        setTimeout(()=>{$('#nomeVence').textContent=venc.nome;abrir('mVence');confete();girando=false;rSorteio()},700)},480);
-    }
-  })(t0);
-}
-function audio(){if(!D.cfg.som)return null;try{ctxAudio=ctxAudio||new(window.AudioContext||window.webkitAudioContext)();return ctxAudio}catch(e){return null}}
-function tique(){const c=audio();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='square';o.frequency.value=1500;g.gain.setValueAtTime(.05,c.currentTime);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.04);o.connect(g).connect(c.destination);o.start();o.stop(c.currentTime+.05)}
-function fanfarra(){const c=audio();if(!c)return;[523,659,784,1047].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;const t=c.currentTime+i*.12;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.5);o.connect(g).connect(c.destination);o.start(t);o.stop(t+.55)})}
-function alternaSom(){D.cfg.som=!D.cfg.som;salvar();rSorteio();toast(D.cfg.som?'Som ligado':'Som desligado')}
-function limparHist(){if(!D.sorteios.length)return;if(!confirm('Limpar o histórico de sorteados? Todos voltam a participar.'))return;D.sorteios=[];salvar();rSorteio()}
-function confete(){
-  const cv=$('#confete'),c=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
-  const cores=['#8E1B2E','#C9962B','#E9C77B','#5E0F1D','#ffffff'];
-  const ps=Array.from({length:160},()=>({x:innerWidth/2+(Math.random()-.5)*120,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*14-4,r:Math.random()*6+4,c:cores[Math.random()*cores.length|0],a:Math.random()*6,va:(Math.random()-.5)*.3}));
-  const t0=performance.now();
-  (function f(t){c.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;c.save();c.translate(p.x,p.y);c.rotate(p.a);c.fillStyle=p.c;c.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);c.restore()});
-    if(t-t0<3200)requestAnimationFrame(f);else c.clearRect(0,0,cv.width,cv.height)})(t0);
-}
-addEventListener('resize',()=>{if(!girando&&$('#t-sorteio').classList.contains('ativa'))rSorteio()});
-
-/* ================= Dados ================= */
-function rDados(){rSobre();$('#cfgTurma').value=D.cfg.turma;$('#cfgMin').value=D.cfg.min}
-function salvarCfg(){
-  const m=parseInt($('#cfgMin').value,10);
-  D.cfg.turma=$('#cfgTurma').value.trim()||'2026';D.cfg.min=isNaN(m)?75:Math.max(0,Math.min(100,m));
-  salvar();aplicaCfg();toast('Ajustes salvos');
-}
-function aplicaCfg(){$('#tituloTurma').textContent=D.cfg.turma}
-function backup(){baixar(`Backup_CBCJ_${D.cfg.turma}_${hoje()}.json`,JSON.stringify(D,null,1),'application/json');toast('Cópia baixada')}
-function restaurar(inp){
-  const f=inp.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const x=JSON.parse(r.result);if(!Array.isArray(x.alunos))throw 0;
-    if(!confirm(`Restaurar a cópia com ${x.alunos.length} alunos e ${(x.aulas||[]).length} aulas? Os dados atuais deste aparelho serão substituídos.`))return;
-    localStorage.setItem(CHAVE,JSON.stringify(x));carregar();aplicaCfg();rDados();toast('Dados restaurados')}catch(e){toast('Arquivo inválido')}inp.value=''};
-  r.readAsText(f);
-}
-function zerar(){if(!confirm('Apagar TODOS os dados deste aparelho?'))return;if(!confirm('Tem certeza? Isso não pode ser desfeito.'))return;D=structuredClone(PADRAO);salvar();aplicaCfg();irPara('alunos');toast('Dados apagados')}
-
-/* ================= Versão e novidades ================= */
-const VERSAO='1.2.0';
-const NOVIDADES=[
-  {v:'1.2.0',d:'07/11/2026',itens:['Aviso de nova versão corrigido: agora só aparece quando há versão nova publicada','Botão “Atualizar” recarrega o app com os arquivos novos']},
-  {v:'1.1.0',d:'07/11/2026',itens:['Botão “Instalar app” no cabeçalho e na aba Dados','Número da versão e lista de novidades','Aviso automático quando houver nova versão publicada']},
-  {v:'1.0.0',d:'07/11/2026',itens:['Cadastro de matriculados (nome, endereço e telefone)','Chamada por lição e grade de frequência com %','Sorteio em roleta estilo caça-níquel','Cópia de segurança e exportação para planilha']}
-];
-function rSobre(){
-  $('#lblVersao').textContent='v'+VERSAO;$('#rodVersao').textContent='v'+VERSAO;
-  $('#listaNovidades').innerHTML=NOVIDADES.map(n=>`<li><b>v${n.v}</b><small>${n.d}</small><ul>${n.itens.map(i=>`<li>${esc(i)}</li>`).join('')}</ul></li>`).join('');
-  $('#btnInstalar2').style.display=instalado()?'none':'';
-}
-
-/* ================= Instalar app ================= */
-let promptInstalar=null;
-const ehIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-function instalado(){return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true}
-function mostraBotaoInstalar(){$('#btnInstalar').classList.toggle('on',!instalado()&&(!!promptInstalar||ehIOS))}
-addEventListener('beforeinstallprompt',e=>{e.preventDefault();promptInstalar=e;mostraBotaoInstalar()});
-addEventListener('appinstalled',()=>{promptInstalar=null;mostraBotaoInstalar();rSobre();toast('App instalado!')});
-async function instalar(){
-  if(instalado()){toast('O app já está instalado');return}
-  if(promptInstalar){promptInstalar.prompt();const r=await promptInstalar.userChoice;promptInstalar=null;mostraBotaoInstalar();if(r.outcome==='accepted')toast('Instalando…');return}
-  abrir(ehIOS?'mIos':'mInstalar');
-}
-
-/* ================= Atualizações ================= */
-// O app compara a própria versão (VERSAO) com o arquivo versao.json publicado no GitHub.
-if(/[?&]v=/.test(location.search))history.replaceState(null,'',location.pathname);
-async function versaoRemota(){
-  try{const r=await fetch('versao.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return null;return(await r.json()).versao||null}catch(e){return null}
-}
-async function checarVersao(manual){
-  if(location.protocol==='file:'){if(manual)toast('Verificação disponível só no endereço publicado');return}
-  const v=await versaoRemota();
-  if(!v){if(manual)toast('Não foi possível verificar agora');return}
-  if(v!==VERSAO){$('#lblNova').textContent='v'+v;$('#barraAtualiza').classList.add('on')}
-  else{$('#barraAtualiza').classList.remove('on');if(manual)toast('Você já está na versão mais recente (v'+VERSAO+')')}
-}
-function verificarAtualizacao(){toast('Verificando…');checarVersao(true)}
-async function aplicarAtualizacao(){
-  const b=$('#barraAtualiza .btn');b.disabled=true;b.textContent='Atualizando…';
-  try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update().catch(()=>{})))}}catch(e){}
-  try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}
-  location.replace(location.pathname+'?v='+Date.now()); // endereço novo = baixa tudo de novo
-}
-if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
-checarVersao(false);
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)checarVersao(false)});
-setInterval(()=>checarVersao(false),30*60*1000);
-
-/* ================= Início ================= */
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.aberto').forEach(m=>fechar(m.id));if(e.key==='Enter'&&$('#mAluno').classList.contains('aberto'))salvarAluno()});
-aplicaCfg();rAlunos();rSobre();mostraBotaoInstalar();
-</script>
+<script src="app.js"></script>
+<script type="module" src="nuvem.js"></script>
 </body>
 </html>
