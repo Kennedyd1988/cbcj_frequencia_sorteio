@@ -22,6 +22,6 @@ Os dados ficam salvos no navegador do aparelho (localStorage). Use **Dados → B
 - **iPhone:** o botão mostra o passo a passo (Safari → Compartilhar → Adicionar à Tela de Início).
 
 ## Publicar uma nova versão
-1. Em `index.html`, mude `const VERSAO` e acrescente um item no topo de `NOVIDADES`.
-2. Em `sw.js`, mude `const VERSAO` para o **mesmo número**.
-3. Envie os arquivos ao GitHub. Quem estiver com o app aberto verá o aviso **"Nova versão disponível → Atualizar"** (ou pode tocar em *Dados → Verificar atualização*). Os dados dos alunos não são apagados.
+1. Em `index.html`, mude `const VERSAO` (ex.: `'1.3.0'`) e acrescente um item no topo de `NOVIDADES`.
+2. Em `versao.json`, coloque o **mesmo número**: `{"versao": "1.3.0"}`.
+3. Envie os arquivos ao GitHub. Em poucos minutos, quem abrir o app verá **"Nova versão disponível → Atualizar"**. Os dados dos alunos não são apagados.

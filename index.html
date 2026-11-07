@@ -514,7 +514,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <div class="rod"><button class="btn btn-pri" onclick="fechar('mInstalar')">Entendi</button></div>
   </div>
 </div>
-<div class="atualiza" id="barraAtualiza"><svg class="i"><use href="#i-refresh"/></svg><div><b>Nova versão disponível</b><small>Toque em atualizar para carregar as novidades.</small></div><button class="btn btn-ouro" onclick="aplicarAtualizacao()">Atualizar</button></div>
+<div class="atualiza" id="barraAtualiza"><svg class="i"><use href="#i-refresh"/></svg><div><b>Nova versão <span id="lblNova"></span> disponível</b><small>Toque em atualizar para carregar as novidades. Seus dados continuam salvos.</small></div><button class="btn btn-ouro" onclick="aplicarAtualizacao()">Atualizar</button></div>
 <canvas id="confete"></canvas>
 <div class="toast" id="toast"></div>
 
@@ -814,8 +814,9 @@ function restaurar(inp){
 function zerar(){if(!confirm('Apagar TODOS os dados deste aparelho?'))return;if(!confirm('Tem certeza? Isso não pode ser desfeito.'))return;D=structuredClone(PADRAO);salvar();aplicaCfg();irPara('alunos');toast('Dados apagados')}
 
 /* ================= Versão e novidades ================= */
-const VERSAO='1.1.0';
+const VERSAO='1.2.0';
 const NOVIDADES=[
+  {v:'1.2.0',d:'07/11/2026',itens:['Aviso de nova versão corrigido: agora só aparece quando há versão nova publicada','Botão “Atualizar” recarrega o app com os arquivos novos']},
   {v:'1.1.0',d:'07/11/2026',itens:['Botão “Instalar app” no cabeçalho e na aba Dados','Número da versão e lista de novidades','Aviso automático quando houver nova versão publicada']},
   {v:'1.0.0',d:'07/11/2026',itens:['Cadastro de matriculados (nome, endereço e telefone)','Chamada por lição e grade de frequência com %','Sorteio em roleta estilo caça-níquel','Cópia de segurança e exportação para planilha']}
 ];
@@ -839,24 +840,29 @@ async function instalar(){
 }
 
 /* ================= Atualizações ================= */
-let regSW=null,recarregando=false;
-function avisaNova(w){if(!w)return;$('#barraAtualiza').classList.add('on');$('#barraAtualiza').dataset.ok='1';window._swEspera=w}
-function aplicarAtualizacao(){const w=window._swEspera;if(w)w.postMessage('ATUALIZAR');else location.reload()}
-async function verificarAtualizacao(){
-  if(!regSW){toast('Atualização automática disponível só no endereço publicado');return}
-  toast('Verificando…');
-  try{await regSW.update()}catch(e){}
-  setTimeout(()=>{if(regSW.waiting)avisaNova(regSW.waiting);else if(!regSW.installing)toast('Você já está na versão mais recente (v'+VERSAO+')')},1500);
+// O app compara a própria versão (VERSAO) com o arquivo versao.json publicado no GitHub.
+if(/[?&]v=/.test(location.search))history.replaceState(null,'',location.pathname);
+async function versaoRemota(){
+  try{const r=await fetch('versao.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return null;return(await r.json()).versao||null}catch(e){return null}
 }
-if('serviceWorker' in navigator&&location.protocol==='https:'){
-  navigator.serviceWorker.register('sw.js').then(reg=>{
-    regSW=reg;
-    if(reg.waiting&&navigator.serviceWorker.controller)avisaNova(reg.waiting);
-    reg.addEventListener('updatefound',()=>{const n=reg.installing;n.addEventListener('statechange',()=>{if(n.state==='installed'&&navigator.serviceWorker.controller)avisaNova(n)})});
-    setInterval(()=>reg.update().catch(()=>{}),60*60*1000);
-  }).catch(()=>{});
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(recarregando)return;recarregando=true;location.reload()});
+async function checarVersao(manual){
+  if(location.protocol==='file:'){if(manual)toast('Verificação disponível só no endereço publicado');return}
+  const v=await versaoRemota();
+  if(!v){if(manual)toast('Não foi possível verificar agora');return}
+  if(v!==VERSAO){$('#lblNova').textContent='v'+v;$('#barraAtualiza').classList.add('on')}
+  else{$('#barraAtualiza').classList.remove('on');if(manual)toast('Você já está na versão mais recente (v'+VERSAO+')')}
 }
+function verificarAtualizacao(){toast('Verificando…');checarVersao(true)}
+async function aplicarAtualizacao(){
+  const b=$('#barraAtualiza .btn');b.disabled=true;b.textContent='Atualizando…';
+  try{if('serviceWorker' in navigator){const rs=await navigator.serviceWorker.getRegistrations();await Promise.all(rs.map(r=>r.update().catch(()=>{})))}}catch(e){}
+  try{const ks=await caches.keys();await Promise.all(ks.map(k=>caches.delete(k)))}catch(e){}
+  location.replace(location.pathname+'?v='+Date.now()); // endereço novo = baixa tudo de novo
+}
+if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+checarVersao(false);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checarVersao(false)});
+setInterval(()=>checarVersao(false),30*60*1000);
 
 /* ================= Início ================= */
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.aberto').forEach(m=>fechar(m.id));if(e.key==='Enter'&&$('#mAluno').classList.contains('aberto'))salvarAluno()});
