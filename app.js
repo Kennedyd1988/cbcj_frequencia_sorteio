@@ -8,7 +8,7 @@
 const CHAVE_LOCAL = 'cbcj2026_frequencia';      // dados antigos, de antes da nuvem
 const CHAVE_SOM = 'cbcj2026_som';
 const CHAVE_MIGRA = 'cbcj2026_migracao_ok';
-const D = { alunos: [], aulas: [], pres: {}, sorteios: [], cfg: { turma: '2026', min: 75 } };
+const D = { alunos: [], aulas: [], pres: {}, sorteios: [], cfg: { turma: '2026', min: 70 } };
 let SOM = true; try { SOM = localStorage.getItem(CHAVE_SOM) !== '0'; } catch (e) {}
 let telaAtiva = 'alunos';
 let estadoApp = 'carregando';
@@ -58,7 +58,11 @@ window.App = {
     if (tipo === 'alunos') D.alunos = val.map(a => ({ id: a.id, nome: a.nome || '', end: a.end || '', tel: a.tel || '', criado: a.criado || 0 }));
     if (tipo === 'aulas') { D.aulas = val.map(a => ({ id: a.id, num: a.num || 0, tit: a.tit || '', data: a.data || '' })); D.pres = {}; val.forEach(a => D.pres[a.id] = a.pres || {}); }
     if (tipo === 'sorteios') D.sorteios = val;
-    if (tipo === 'cfg') D.cfg = { turma: val.turma || '2026', min: val.min ?? 75 };
+    if (tipo === 'cfg') {
+      D.cfg = { turma: val.turma || '2026', min: val.min ?? 70 };
+      // ajuste único: o mínimo antigo (75%) passa para 70%
+      if (val.min === 75 && !val.min70 && N()) grava(N().salvarCfg({ min: 70, min70: true }));
+    }
     if (tipo === 'alunos' && meta && !meta.fromCache) verificaMigracao();
     redesenha();
   }
@@ -401,7 +405,7 @@ function rDados() { rSobre(); $('#cfgTurma').value = D.cfg.turma; $('#cfgMin').v
 function salvarCfg() {
   if (!nuvemPronta()) return;
   const m = parseInt($('#cfgMin').value, 10);
-  grava(N().salvarCfg({ turma: $('#cfgTurma').value.trim() || '2026', min: isNaN(m) ? 75 : Math.max(0, Math.min(100, m)) }));
+  grava(N().salvarCfg({ turma: $('#cfgTurma').value.trim() || '2026', min: isNaN(m) ? 70 : Math.max(0, Math.min(100, m)), min70: true }));
   toast('Ajustes salvos');
 }
 function aplicaCfg() { $('#tituloTurma').textContent = D.cfg.turma; }
@@ -425,13 +429,14 @@ function zerar() {
   if (!nuvemPronta()) return;
   if (!confirm('Apagar TODOS os dados do curso na nuvem? Isso afeta todos os aparelhos.')) return;
   if (!confirm('Tem certeza? Isso não pode ser desfeito.')) return;
-  grava(N().substituirTudo({ alunos: D.alunos, aulas: D.aulas, sorteios: D.sorteios }, { cfg: { turma: '2026', min: 75 } }));
+  grava(N().substituirTudo({ alunos: D.alunos, aulas: D.aulas, sorteios: D.sorteios }, { cfg: { turma: '2026', min: 70 } }));
   irPara('alunos'); toast('Dados apagados');
 }
 
 /* ================= Versão e novidades ================= */
-const VERSAO = '2.0.0';
+const VERSAO = '2.1.0';
 const NOVIDADES = [
+  { v: '2.1.0', d: '09/11/2026', itens: ['Frequência mínima para o certificado passou para 70%'] },
   { v: '2.0.0', d: '07/11/2026', itens: ['Dados salvos na nuvem (Firebase): iguais no celular e no computador', 'Funciona sem internet e sincroniza quando a conexão volta', 'Acesso com e-mail e senha', 'Envio dos dados antigos do aparelho para a nuvem'] },
   { v: '1.2.0', d: '07/11/2026', itens: ['Aviso de nova versão corrigido: só aparece quando há versão nova publicada'] },
   { v: '1.1.0', d: '07/11/2026', itens: ['Botão “Instalar app”, número da versão e lista de novidades'] },

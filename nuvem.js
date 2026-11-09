@@ -119,7 +119,7 @@ async function iniciar() {
       (novo.sorteios || []).forEach(s => ops.push(b => b.set(F.doc(col('sorteios')), {
         alunoId: s.alunoId || s.id, nome: s.nome, quando: s.quando || Date.now()
       })));
-      if (novo.cfg) ops.push(b => b.set(base, { turma: novo.cfg.turma || '2026', min: novo.cfg.min ?? 75 }, { merge: true }));
+      if (novo.cfg) ops.push(b => b.set(base, { turma: novo.cfg.turma || '2026', min: novo.cfg.min ?? 70 }, { merge: true }));
       return emLotes(ops);
     }
   };
