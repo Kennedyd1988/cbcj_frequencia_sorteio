@@ -3,7 +3,7 @@
 // - bibliotecas do Firebase e fontes: guardadas no aparelho (o app abre mesmo offline)
 const CACHE='cbcj2026';
 const ARQ=['./','index.html','app.js','nuvem.js','firebase-config.js','manifest.json','assets/logo-claro.png','assets/cruz.jpg','assets/icone-192.png','assets/icone-512.png'];
-const EXTERNOS=['https://www.gstatic.com/firebasejs/','https://fonts.googleapis.com/','https://fonts.gstatic.com/'];
+const EXTERNOS=['https://www.gstatic.com/firebasejs/','https://fonts.googleapis.com/','https://fonts.gstatic.com/','https://cdnjs.cloudflare.com/ajax/libs/jspdf/'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ARQ)).catch(()=>{}))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{

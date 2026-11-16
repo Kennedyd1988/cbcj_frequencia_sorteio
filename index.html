@@ -340,6 +340,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></symbol>
     <symbol id="i-crown" viewBox="0 0 24 24"><path d="M2 18l2-11 5 5 3-7 3 7 5-5 2 11z"/><path d="M4 21h16"/></symbol>
     <symbol id="i-contact" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M2 7h2M2 12h2M2 17h2"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><rect x="2" y="9" width="20" height="9" rx="2"/><path d="M6 14h12v8H6z"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
     <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
@@ -400,6 +401,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <select id="selAula" aria-label="Escolher aula"></select>
     <button class="btn btn-pri" onclick="abrirAula()"><svg class="i"><use href="#i-plus"/></svg>Nova aula</button>
     <button class="btn-ic" id="btnEditAula" title="Editar aula" onclick="abrirAula(aulaAtual)"><svg class="i"><use href="#i-edit"/></svg></button>
+    <button class="btn btn-sec" onclick="abrirLista()" title="Lista de presença para imprimir"><svg class="i"><use href="#i-print"/></svg><span class="hide-sm">Lista p/ imprimir</span></button>
   </div>
   <div id="areaChamada"></div>
 </section>
@@ -555,6 +557,24 @@ footer .serif{color:var(--vinho);font-style:italic}
       <div class="pos-ct" id="ctPos"><b id="ctPosTxt"></b><br>Depois de importar no celular, marque como salvos para não exportá-los de novo.<button class="btn btn-pri" onclick="marcarSalvos()">Já importei — marcar como salvos</button></div>
     </div>
     <div class="rod"><button class="btn btn-sec" onclick="fechar('mContatos')">Fechar</button><button class="btn btn-ouro" id="btnExpCt" onclick="exportarContatos()"><svg class="i"><use href="#i-contact"/></svg>Exportar</button></div>
+  </div>
+</div>
+<div class="modal" id="mLista">
+  <div class="caixa">
+    <div class="cab"><h3>Lista de presença (PDF)</h3><button class="btn-ic" onclick="fechar('mLista')"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <p style="margin:0 0 12px;color:var(--suave);font-size:13px">Gera um PDF com todos os matriculados (nome, telefone e campo de assinatura) e linhas em branco para novos alunos.</p>
+      <div style="display:grid;grid-template-columns:90px 1fr;gap:10px">
+        <div class="campo"><label for="lsNum">Lição nº</label><input id="lsNum" type="number" min="1" max="99"></div>
+        <div class="campo"><label for="lsTit">Título</label><input id="lsTit" placeholder="Ex.: Quem é Jesus?"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="campo"><label for="lsData">Data</label><input id="lsData" type="date"></div>
+        <div class="campo"><label for="lsBranco">Linhas em branco</label><input id="lsBranco" type="number" min="0" max="60" value="10"></div>
+      </div>
+      <p style="margin:0;font-size:12px;color:var(--suave)">Deixe a data vazia para preencher à mão.</p>
+    </div>
+    <div class="rod"><button class="btn btn-sec" onclick="fechar('mLista')">Cancelar</button><button class="btn btn-ouro" id="btnGerarLista" onclick="gerarLista()"><svg class="i"><use href="#i-print"/></svg>Gerar PDF</button></div>
   </div>
 </div>
 <div class="modal" id="mLote">

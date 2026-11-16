@@ -331,6 +331,141 @@ function marcarTodos(v) {
   const p = {}; if (v) D.alunos.forEach(a => p[a.id] = true);
   grava(N().definirPresencas(aulaAtual, p));
 }
+/* ================= Lista de presença em PDF ================= */
+const LICOES = { 1: 'Como tudo começou', 2: 'Conhecendo a si mesmo', 3: 'Quem é Jesus?', 4: 'Salvação: o dom gratuito de Deus', 5: 'Dois tipos de vida', 6: 'O verdadeiro discípulo de Jesus', 7: 'A volta de Cristo' };
+function abrirLista() {
+  const a = D.aulas.find(x => x.id === aulaAtual);
+  const prox = D.aulas.reduce((m, x) => Math.max(m, x.num), 0) + 1;
+  const num = a ? a.num : Math.min(prox, 7);
+  $('#lsNum').value = num;
+  $('#lsTit').value = a && a.tit ? a.tit : (LICOES[num] || '');
+  $('#lsData').value = a && a.data ? a.data : '';
+  abrir('mLista');
+}
+$('#lsNum').oninput = () => { const n = parseInt($('#lsNum').value, 10); const t = $('#lsTit').value.trim(); if (!t || Object.values(LICOES).includes(t)) $('#lsTit').value = LICOES[n] || ''; };
+function carregaScript(src) {
+  return new Promise((ok, erro) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = () => erro(new Error('script')); document.head.appendChild(s); });
+}
+async function imagemDataURL(url) {
+  const r = await fetch(url); const b = await r.blob();
+  return new Promise(ok => { const f = new FileReader(); f.onload = () => ok(f.result); f.readAsDataURL(b); });
+}
+async function gerarLista() {
+  const num = parseInt($('#lsNum').value, 10) || 0;
+  const tit = $('#lsTit').value.trim();
+  const data = $('#lsData').value;
+  const brancos = Math.max(0, Math.min(60, parseInt($('#lsBranco').value, 10) || 0));
+  const btn = $('#btnGerarLista'); btn.disabled = true; const rot = btn.innerHTML; btn.textContent = 'Gerando…';
+  try {
+    if (!window.jspdf) await carregaScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const logo = await imagemDataURL('assets/logo-claro.png').catch(() => null);
+    const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+    desenhaLista(doc, { num, tit, data, brancos, logo });
+    const nome = `Lista_Presenca_CBCJ_Licao_${String(num).padStart(2, '0')}.pdf`;
+    doc.save(nome);
+    fechar('mLista'); toast('PDF gerado');
+  } catch (e) {
+    console.error(e); toast(navigator.onLine ? 'Não foi possível gerar o PDF' : 'Conecte-se à internet para gerar o PDF');
+  } finally { btn.disabled = false; btn.innerHTML = rot; }
+}
+function desenhaLista(doc, o) {
+  const VINHO = [142, 27, 46], VESC = [94, 15, 29], OURO = [201, 150, 43], CREME = [250, 247, 243], LINHA = [200, 188, 178], SUAVE = [111, 95, 98], TINTA = [42, 26, 29];
+  const W = 210, H = 297, M = 12, LARG = W - 2 * M;
+  const COL = [{ t: 'Nº', w: 10, a: 'center' }, { t: 'NOME COMPLETO', w: 80 }, { t: 'TELEFONE', w: 36 }, { t: 'ASSINATURA', w: LARG - 126 }];
+  const LH = 8.6, RODAPE = 14;
+  const licao = `LIÇÃO ${String(o.num).padStart(2, '0')}${o.tit ? ' – ' + o.tit.toUpperCase() : ''}`;
+  const alunos = [...D.alunos].sort(porNome);
+  let pag = 0, y = 0;
+
+  function cabecalho() {
+    pag++;
+    if (pag === 1) {
+      doc.setFillColor(...VESC); doc.rect(0, 0, W, 32, 'F');
+      doc.setFillColor(...OURO); doc.rect(0, 32, W, 1.2, 'F');
+      if (o.logo) doc.addImage(o.logo, 'PNG', M, 5, 52, 52 * 289 / 700);
+      doc.setTextColor(233, 199, 123); doc.setFont('times', 'bold'); doc.setFontSize(17);
+      doc.text('LISTA DE PRESENÇA', W - M, 12, { align: 'right' });
+      doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+      doc.text(`Curso Bíblico Conhecendo Jesus ${D.cfg.turma || '2026'}`, W - M, 18, { align: 'right' });
+      doc.text('Igreja de Cristo em Riacho da Cruz', W - M, 23, { align: 'right' });
+      y = 40;
+      doc.setTextColor(...VINHO); doc.setFont('times', 'bold'); doc.setFontSize(13);
+      const linhasTit = doc.splitTextToSize(licao, LARG - 52);
+      doc.text(linhasTit, M, y); 
+      doc.setTextColor(...TINTA); doc.setFont('helvetica', 'normal'); doc.setFontSize(10);
+      doc.text('Data: ' + (o.data ? fmtData(o.data) : '____/____/________'), W - M, y, { align: 'right' });
+      y += 5.5 * linhasTit.length + 1;
+      doc.setFontSize(8.5); doc.setTextColor(...SUAVE);
+      doc.text(`${alunos.length} matriculado${alunos.length !== 1 ? 's' : ''}  ·  Assine na linha do seu nome. Novos alunos: use as linhas em branco no final.`, M, y);
+      y += 4;
+    } else {
+      doc.setFillColor(...VESC); doc.rect(0, 0, W, 12, 'F');
+      doc.setFillColor(...OURO); doc.rect(0, 12, W, 0.8, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFont('times', 'bold'); doc.setFontSize(10);
+      doc.text('LISTA DE PRESENÇA  ·  ' + licao, M, 7.8, { maxWidth: LARG - 40 });
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+      doc.text(o.data ? fmtData(o.data) : 'Data: ___/___/____', W - M, 7.8, { align: 'right' });
+      y = 18;
+    }
+    // cabeçalho da tabela
+    doc.setFillColor(...VINHO); doc.rect(M, y, LARG, 7, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(8);
+    let x = M; COL.forEach(c => { doc.text(c.t, c.a === 'center' ? x + c.w / 2 : x + 2, y + 4.7, c.a === 'center' ? { align: 'center' } : {}); x += c.w; });
+    y += 7;
+  }
+  function cabeNome(txt, w) {
+    let fs = 10; doc.setFont('helvetica', 'normal');
+    while (fs > 7 && (doc.setFontSize(fs), doc.getTextWidth(txt) > w - 4)) fs -= 0.5;
+    return fs;
+  }
+  function linha(n, nome, tel, zebra) {
+    if (y + LH > H - RODAPE) { doc.addPage(); cabecalho(); }
+    if (zebra) { doc.setFillColor(...CREME); doc.rect(M, y, LARG, LH, 'F'); }
+    doc.setDrawColor(...LINHA); doc.setLineWidth(0.2);
+    doc.line(M, y, M + LARG, y); doc.line(M, y + LH, M + LARG, y + LH);
+    let x = M; COL.forEach((c, i) => { if (i) doc.line(x, y, x, y + LH); x += c.w; });
+    doc.line(M, y, M, y + LH); doc.line(M + LARG, y, M + LARG, y + LH);
+    const by = y + LH / 2 + 1.3;
+    doc.setTextColor(...OURO); doc.setFont('times', 'bold'); doc.setFontSize(9.5);
+    doc.text(String(n).padStart(2, '0'), M + COL[0].w / 2, by, { align: 'center' });
+    doc.setTextColor(...TINTA);
+    if (nome) { doc.setFontSize(cabeNome(nome, COL[1].w)); doc.text(nome, M + COL[0].w + 2, by); }
+    if (tel) { doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(tel, M + COL[0].w + COL[1].w + 2, by); }
+    y += LH;
+  }
+  function faixa(txt) {
+    if (y + 7 + LH > H - RODAPE) { doc.addPage(); cabecalho(); }
+    y += 3;
+    doc.setFillColor(...OURO); doc.rect(M, y, LARG, 6.5, 'F');
+    doc.setTextColor(...VESC); doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
+    doc.text(txt, M + 3, y + 4.4);
+    y += 6.5;
+  }
+
+  cabecalho();
+  alunos.forEach((a, i) => linha(i + 1, a.nome, a.tel || '', i % 2 === 1));
+  if (o.brancos) {
+    faixa('NOVOS MATRICULADOS  —  escreva o nome completo, o telefone e assine');
+    for (let k = 0; k < o.brancos; k++) linha(alunos.length + k + 1, '', '', k % 2 === 1);
+  }
+  // fechamento
+  if (y + 16 > H - RODAPE) { doc.addPage(); cabecalho(); }
+  y += 10;
+  doc.setTextColor(...TINTA); doc.setFont('helvetica', 'normal'); doc.setFontSize(9);
+  doc.text('Total de presentes: ________', M, y);
+  doc.setDrawColor(...TINTA); doc.setLineWidth(0.3); doc.line(W - M - 75, y, W - M, y);
+  doc.setFontSize(8); doc.setTextColor(...SUAVE); doc.text('Professor(a) responsável', W - M - 37.5, y + 4, { align: 'center' });
+  // rodapés
+  const tot = doc.getNumberOfPages();
+  for (let p = 1; p <= tot; p++) {
+    doc.setPage(p);
+    doc.setDrawColor(...OURO); doc.setLineWidth(0.4); doc.line(M, H - 10, W - M, H - 10);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...SUAVE);
+    doc.text(`CBCJ ${D.cfg.turma || '2026'} · Igreja de Cristo em Riacho da Cruz · Meta: ${D.cfg.min}% de presença para o certificado`, M, H - 6);
+    doc.text(`Página ${p} de ${tot}`, W - M, H - 6, { align: 'right' });
+  }
+}
+
 function abrirAula(id) {
   aulaEdit = id || null; const a = D.aulas.find(x => x.id === id);
   $('#mAulaTit').textContent = a ? 'Editar aula' : 'Nova aula';
@@ -514,8 +649,9 @@ function zerar() {
 }
 
 /* ================= Versão e novidades ================= */
-const VERSAO = '2.2.0';
+const VERSAO = '2.3.0';
 const NOVIDADES = [
+  { v: '2.3.0', d: '16/11/2026', itens: ['Lista de presença em PDF para imprimir, por lição, com linhas em branco para novos alunos'] },
   { v: '2.2.0', d: '16/11/2026', itens: ['Exportar para os contatos do celular (arquivo .vcf), escolhendo quem exportar', 'Controle de quem já foi salvo, para não duplicar contatos'] },
   { v: '2.1.0', d: '09/11/2026', itens: ['Frequência mínima para o certificado passou para 70%'] },
   { v: '2.0.0', d: '07/11/2026', itens: ['Dados salvos na nuvem (Firebase): iguais no celular e no computador', 'Funciona sem internet e sincroniza quando a conexão volta', 'Acesso com e-mail e senha', 'Envio dos dados antigos do aparelho para a nuvem'] },
