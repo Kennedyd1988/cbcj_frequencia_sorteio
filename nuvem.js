@@ -80,6 +80,9 @@ async function iniciar() {
     loteAlunos(lista) {
       return emLotes(lista.map(a => b => b.set(F.doc(col('alunos')), { ...a, criado: Date.now() })));
     },
+    marcarContatos(itens) {
+      return emLotes(itens.map(x => b => b.update(F.doc(col('alunos'), x.id), { contatoExp: x.tel })));
+    },
     excluirAluno(id, aulasComPresenca) {
       const ops = [b => b.delete(F.doc(col('alunos'), id))];
       aulasComPresenca.forEach(au => ops.push(b => b.update(F.doc(col('aulas'), au), { ['pres.' + id]: F.deleteField() })));

@@ -265,6 +265,36 @@ body[data-estado="carregando"] .painel[data-p="carregando"],body[data-estado="lo
 .conta .avatar{width:40px;height:40px;font-size:15px}
 .conta b{display:block;font-size:14px;word-break:break-all}
 .conta small{color:var(--suave);font-size:12px}
+.ct-atalhos{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.ct-atalhos button{border:1px solid var(--linha);background:#fff;border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;color:var(--vinho-esc)}
+.ct-atalhos button:hover{border-color:var(--vinho)}
+.ct-atalhos span{margin-left:auto;font-size:12px;font-weight:700;color:var(--vinho)}
+.ct-lista{border:1px solid var(--linha);border-radius:12px;max-height:290px;overflow:auto;margin-bottom:12px}
+.ct-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--linha);cursor:pointer}
+.ct-item:last-child{border-bottom:0}
+.ct-item input{width:18px;height:18px;accent-color:var(--vinho);flex:none}
+.ct-item .nm{flex:1;min-width:0}
+.ct-item .nm b{display:block;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ct-item .nm small{color:var(--suave);font-size:12px}
+.ct-item.sem{opacity:.55;cursor:default}
+.ct-item .tag-ct{margin:0}
+.opcao{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1.5px solid var(--linha);border-radius:12px;margin-bottom:8px;cursor:pointer}
+.opcao:has(input:checked){border-color:var(--vinho);background:#FBF3F4}
+.opcao input{margin-top:2px;accent-color:var(--vinho);width:18px;height:18px;flex:none}
+.opcao b{display:block;font-size:14px}
+.opcao small{color:var(--suave);font-size:12px}
+.resumo-ct{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.resumo-ct div{background:var(--creme);border-radius:12px;padding:10px;text-align:center}
+.resumo-ct b{display:block;font-family:Lora,serif;font-size:22px;color:var(--vinho)}
+.resumo-ct small{font-size:11px;color:var(--suave);font-weight:600}
+.passos-ct{margin:6px 0 0;padding-left:18px;font-size:13px;color:var(--suave);display:grid;gap:4px}
+.pos-ct{display:none;margin-top:14px;padding:12px;border-radius:12px;background:var(--verde-bg);color:#1d5a37;font-size:13px}
+.pos-ct.on{display:block}
+.pos-ct .btn{margin-top:10px;width:100%}
+.tag-ct{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;color:var(--verde);margin-left:6px}
+.tag-ct svg{width:12px;height:12px}
+.aluno .det .tag-ct{flex:none;overflow:visible}
+@media(max-width:560px){.hide-sm{display:none}.sec-tit .acoes .btn-sec{padding:10px 12px}}
 footer{text-align:center;color:var(--suave);font-size:12px;padding:10px 16px 20px}
 footer .serif{color:var(--vinho);font-style:italic}
 </style>
@@ -309,6 +339,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol>
     <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></symbol>
     <symbol id="i-crown" viewBox="0 0 24 24"><path d="M2 18l2-11 5 5 3-7 3 7 5-5 2 11z"/><path d="M4 21h16"/></symbol>
+    <symbol id="i-contact" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 18a5 5 0 0 1 10 0"/><path d="M2 7h2M2 12h2M2 17h2"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
     <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
     <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
@@ -348,6 +379,7 @@ footer .serif{color:var(--vinho);font-style:italic}
     <div class="ic"><svg class="i"><use href="#i-users"/></svg></div>
     <div><h2>Matriculados</h2><p id="contAlunos">Nenhum aluno ainda</p></div>
     <div class="acoes">
+      <button class="btn btn-sec" onclick="abrirContatos()" title="Exportar para os contatos do celular"><svg class="i"><use href="#i-contact"/></svg><span class="hide-sm">Contatos</span></button>
       <button class="btn btn-sec" onclick="abrirLote()"><svg class="i"><use href="#i-list"/></svg><span class="hide-sm">Vários</span></button>
       <button class="btn btn-pri" onclick="abrirAluno()"><svg class="i"><use href="#i-plus"/></svg>Matricular</button>
     </div>
@@ -499,6 +531,32 @@ footer .serif{color:var(--vinho);font-style:italic}
   </div>
 </div>
 
+<div class="modal" id="mContatos">
+  <div class="caixa">
+    <div class="cab"><h3>Exportar para os contatos</h3><button class="btn-ic" onclick="fechar('mContatos')"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="corpo">
+      <div class="resumo-ct">
+        <div><b id="ctCom">0</b><small>com telefone</small></div>
+        <div><b id="ctNovos">0</b><small>ainda não salvos</small></div>
+        <div><b id="ctSem">0</b><small>sem telefone</small></div>
+      </div>
+      <div class="barra" style="margin-bottom:8px">
+        <div class="busca"><svg class="i"><use href="#i-search"/></svg><input id="ctBusca" placeholder="Buscar aluno…"></div>
+      </div>
+      <div class="ct-atalhos"><button type="button" onclick="ctMarcar('todos')">Todos</button><button type="button" onclick="ctMarcar('novos')">Só não salvos</button><button type="button" onclick="ctMarcar('nenhum')">Nenhum</button><span id="ctSel"></span></div>
+      <div class="ct-lista" id="ctLista"></div>
+      <label class="chk"><input type="checkbox" id="ctSufixo" checked> Acrescentar “CBCJ” ao nome (ex.: Maria Silva CBCJ)</label>
+      <p style="margin:8px 0 0;font-size:13px;color:var(--suave)"><b style="color:var(--vinho-esc)">No Android:</b></p>
+      <ol class="passos-ct">
+        <li>Toque em <b>Exportar</b> e escolha <b>Contatos</b> na lista (ou abra o arquivo baixado).</li>
+        <li>Escolha a conta <b>Google</b> para salvar e confirme.</li>
+        <li>Se algum número já existia, use <b>Contatos → Corrigir e gerenciar → Mesclar e corrigir</b>.</li>
+      </ol>
+      <div class="pos-ct" id="ctPos"><b id="ctPosTxt"></b><br>Depois de importar no celular, marque como salvos para não exportá-los de novo.<button class="btn btn-pri" onclick="marcarSalvos()">Já importei — marcar como salvos</button></div>
+    </div>
+    <div class="rod"><button class="btn btn-sec" onclick="fechar('mContatos')">Fechar</button><button class="btn btn-ouro" id="btnExpCt" onclick="exportarContatos()"><svg class="i"><use href="#i-contact"/></svg>Exportar</button></div>
+  </div>
+</div>
 <div class="modal" id="mLote">
   <div class="caixa">
     <div class="cab"><h3>Matricular vários</h3><button class="btn-ic" onclick="fechar('mLote')"><svg class="i"><use href="#i-x"/></svg></button></div>

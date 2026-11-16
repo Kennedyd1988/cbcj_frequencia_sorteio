@@ -22,6 +22,7 @@ const semAcento = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').
 const porNome = (a, b) => a.nome.localeCompare(b.nome, 'pt-BR');
 const fmtData = d => { if (!d) return ''; const [y, m, dd] = d.split('-'); return `${dd}/${m}/${y}`; };
 const hoje = () => { const t = new Date(); t.setMinutes(t.getMinutes() - t.getTimezoneOffset()); return t.toISOString().slice(0, 10); };
+function comDDD(v) { const d = String(v || '').replace(/\D/g, ''); return (d.length === 8 || d.length === 9) ? '84' + d : d; }
 function fmtTel(v) { const d = v.replace(/\D/g, '').slice(0, 11); if (d.length <= 2) return d ? `(${d}` : ''; if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`; if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`; return `(${d.slice(0, 2)}) ${d.slice(2, 3)} ${d.slice(3, 7)}-${d.slice(7)}`; }
 function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 2400); }
 function abrir(id) { $('#' + id).classList.add('aberto'); }
@@ -55,7 +56,7 @@ window.App = {
     }
   },
   dados(tipo, val, meta) {
-    if (tipo === 'alunos') D.alunos = val.map(a => ({ id: a.id, nome: a.nome || '', end: a.end || '', tel: a.tel || '', criado: a.criado || 0 }));
+    if (tipo === 'alunos') D.alunos = val.map(a => ({ id: a.id, nome: a.nome || '', end: a.end || '', tel: a.tel || '', criado: a.criado || 0, contatoExp: a.contatoExp || '' }));
     if (tipo === 'aulas') { D.aulas = val.map(a => ({ id: a.id, num: a.num || 0, tit: a.tit || '', data: a.data || '' })); D.pres = {}; val.forEach(a => D.pres[a.id] = a.pres || {}); }
     if (tipo === 'sorteios') D.sorteios = val;
     if (tipo === 'cfg') {
@@ -170,7 +171,7 @@ function rAlunos() {
       <div class="info">
         <div class="nome"><span class="num">${String(ord.indexOf(a) + 1).padStart(2, '0')}</span>${esc(a.nome)}</div>
         ${a.end ? `<div class="det"><svg class="i"><use href="#i-pin"/></svg><span>${esc(a.end)}</span></div>` : ''}
-        ${a.tel ? `<div class="det"><svg class="i"><use href="#i-phone"/></svg><span>${esc(a.tel)}</span></div>` : ''}
+        ${a.tel ? `<div class="det"><svg class="i"><use href="#i-phone"/></svg><span>${esc(a.tel)}</span>${telIntl(a.tel) && a.contatoExp === telIntl(a.tel) ? '<span class="tag-ct" title="Já salvo nos contatos"><svg class="i"><use href="#i-check"/></svg>salvo</span>' : ''}</div>` : ''}
       </div>
       <div class="acts">
         <span class="mini-freq ${classeFreq(f.pct)}">${f.pct === null ? 'sem aulas' : f.pct + '%'}</span>
@@ -195,7 +196,8 @@ function salvarAluno() {
   if (!nome) { toast('Informe o nome completo'); $('#fNome').focus(); return; }
   const dup = D.alunos.find(x => semAcento(x.nome) === semAcento(nome) && x.id !== alunoEdit);
   if (dup && !confirm('Já existe um aluno com esse nome. Salvar mesmo assim?')) return;
-  grava(N().salvarAluno(alunoEdit, { nome, end: $('#fEnd').value.trim(), tel: $('#fTel').value.trim() }));
+  const tel = $('#fTel').value.trim();
+  grava(N().salvarAluno(alunoEdit, { nome, end: $('#fEnd').value.trim(), tel: tel ? fmtTel(comDDD(tel)) : '' }));
   fechar('mAluno'); toast(alunoEdit ? 'Matrícula atualizada' : 'Aluno matriculado');
 }
 function excluirAluno(id) {
@@ -204,6 +206,84 @@ function excluirAluno(id) {
   grava(N().excluirAluno(id, D.aulas.filter(au => D.pres[au.id] && D.pres[au.id][id]).map(au => au.id)));
   fechar('mAluno'); toast('Matrícula excluída');
 }
+/* ================= Exportar para contatos (vCard .vcf) ================= */
+// Normaliza para +55DDNÚMERO. Números sem DDD recebem 84 (RN).
+function telIntl(t) {
+  let d = String(t || '').replace(/\D/g, '');
+  if (!d) return '';
+  if (d.startsWith('0')) d = d.replace(/^0+/, '');
+  if (d.length === 8 || d.length === 9) d = '84' + d;
+  if (d.length === 10 || d.length === 11) d = '55' + d;
+  return d.length >= 12 ? '+' + d : '';
+}
+const vEsc = s => String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+function ctListas() {
+  const com = D.alunos.filter(a => telIntl(a.tel));
+  const novos = com.filter(a => a.contatoExp !== telIntl(a.tel));
+  return { com, novos, sem: D.alunos.length - com.length };
+}
+let ctUltimos = [], ctSel = new Set();
+const ctSalvo = a => telIntl(a.tel) && a.contatoExp === telIntl(a.tel);
+function abrirContatos() {
+  const l = ctListas();
+  $('#ctCom').textContent = l.com.length; $('#ctNovos').textContent = l.novos.length; $('#ctSem').textContent = l.sem;
+  ctSel = new Set(l.novos.map(a => a.id));
+  $('#ctBusca').value = ''; $('#ctPos').classList.remove('on'); ctUltimos = [];
+  rContatos(); abrir('mContatos');
+}
+function rContatos() {
+  const q = semAcento($('#ctBusca').value.trim());
+  const lista = [...D.alunos].sort(porNome).filter(a => !q || semAcento(a.nome + ' ' + a.tel).includes(q));
+  $('#ctLista').innerHTML = lista.length ? lista.map(a => {
+    const ok = !!telIntl(a.tel);
+    return `<label class="ct-item ${ok ? '' : 'sem'}"><input type="checkbox" data-id="${a.id}" ${ok ? '' : 'disabled'} ${ctSel.has(a.id) ? 'checked' : ''} onchange="ctAlterna(this)">
+      <div class="nm"><b>${esc(a.nome)}</b><small>${ok ? esc(a.tel) : 'sem telefone'}</small></div>
+      ${ctSalvo(a) ? '<span class="tag-ct"><svg class="i"><use href="#i-check"/></svg>salvo</span>' : ''}</label>`;
+  }).join('') : '<div class="vazio" style="padding:20px">Nenhum aluno encontrado.</div>';
+  const n = ctSel.size; $('#ctSel').textContent = `${n} selecionado${n !== 1 ? 's' : ''}`;
+  $('#btnExpCt').disabled = !n;
+}
+$('#ctBusca').oninput = rContatos;
+function ctAlterna(cb) { if (cb.checked) ctSel.add(cb.dataset.id); else ctSel.delete(cb.dataset.id); rContatos(); }
+function ctMarcar(m) {
+  const l = ctListas();
+  ctSel = new Set(m === 'todos' ? l.com.map(a => a.id) : m === 'novos' ? l.novos.map(a => a.id) : []);
+  rContatos();
+}
+function vcard(lista, sufixo) {
+  const tag = 'CBCJ ' + (D.cfg.turma || '2026');
+  return lista.map(a => {
+    const nome = a.nome + (sufixo ? ' CBCJ' : '');
+    const l = ['BEGIN:VCARD', 'VERSION:3.0', 'N:;' + vEsc(nome) + ';;;', 'FN:' + vEsc(nome), 'TEL;TYPE=CELL:' + telIntl(a.tel)];
+    if (a.end) l.push('ADR;TYPE=HOME:;;' + vEsc(a.end) + ';;;;');
+    l.push('CATEGORIES:' + vEsc(tag), 'NOTE:' + vEsc('Matriculado no Curso Bíblico Conhecendo Jesus ' + (D.cfg.turma || '2026')), 'END:VCARD');
+    return l.join('\r\n');
+  }).join('\r\n') + '\r\n';
+}
+async function exportarContatos() {
+  const lista = D.alunos.filter(a => ctSel.has(a.id) && telIntl(a.tel)).sort(porNome);
+  if (!lista.length) { toast('Marque pelo menos um aluno com telefone'); return; }
+  const nomeArq = `Contatos_CBCJ_${D.cfg.turma}.vcf`;
+  const conteudo = vcard(lista, $('#ctSufixo').checked);
+  ctUltimos = lista.map(a => ({ id: a.id, tel: telIntl(a.tel) }));
+  let compartilhou = false;
+  try {
+    const arq = new File([conteudo], nomeArq, { type: 'text/vcard' });
+    if (navigator.canShare && navigator.canShare({ files: [arq] }) && /android/i.test(navigator.userAgent)) {
+      await navigator.share({ files: [arq], title: 'Contatos CBCJ' }); compartilhou = true;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') { ctUltimos = []; return; } }
+  if (!compartilhou) baixar(nomeArq, conteudo, 'text/vcard;charset=utf-8');
+  $('#ctPosTxt').textContent = `${lista.length} contato${lista.length > 1 ? 's' : ''} exportado${lista.length > 1 ? 's' : ''}.`;
+  $('#ctPos').classList.add('on');
+}
+function marcarSalvos() {
+  if (!ctUltimos.length || !nuvemPronta()) return;
+  grava(N().marcarContatos(ctUltimos));
+  toast(`${ctUltimos.length} marcado${ctUltimos.length > 1 ? 's' : ''} como salvo${ctUltimos.length > 1 ? 's' : ''}`);
+  ctUltimos = []; fechar('mContatos');
+}
+
 function abrirLote() { $('#fLote').value = ''; abrir('mLote'); setTimeout(() => $('#fLote').focus(), 100); }
 function salvarLote() {
   if (!nuvemPronta()) return;
@@ -211,7 +291,7 @@ function salvarLote() {
   $('#fLote').value.split('\n').map(l => l.trim().replace(/^"|"$/g, '')).filter(Boolean).forEach(l => {
     const [nome, end = '', tel = ''] = l.split(/[;\t]/).map(s => s.trim());
     const k = semAcento(nome);
-    if (nome && !vistos.has(k)) { vistos.add(k); novos.push({ nome: nome.replace(/\s+/g, ' '), end, tel: tel ? fmtTel(tel) : '' }); }
+    if (nome && !vistos.has(k)) { vistos.add(k); novos.push({ nome: nome.replace(/\s+/g, ' '), end, tel: tel ? fmtTel(comDDD(tel)) : '' }); }
   });
   if (novos.length) grava(N().loteAlunos(novos));
   fechar('mLote'); toast(novos.length ? `${novos.length} aluno${novos.length > 1 ? 's' : ''} matriculado${novos.length > 1 ? 's' : ''}` : 'Nenhum nome novo');
@@ -434,8 +514,9 @@ function zerar() {
 }
 
 /* ================= Versão e novidades ================= */
-const VERSAO = '2.1.0';
+const VERSAO = '2.2.0';
 const NOVIDADES = [
+  { v: '2.2.0', d: '16/11/2026', itens: ['Exportar para os contatos do celular (arquivo .vcf), escolhendo quem exportar', 'Controle de quem já foi salvo, para não duplicar contatos'] },
   { v: '2.1.0', d: '09/11/2026', itens: ['Frequência mínima para o certificado passou para 70%'] },
   { v: '2.0.0', d: '07/11/2026', itens: ['Dados salvos na nuvem (Firebase): iguais no celular e no computador', 'Funciona sem internet e sincroniza quando a conexão volta', 'Acesso com e-mail e senha', 'Envio dos dados antigos do aparelho para a nuvem'] },
   { v: '1.2.0', d: '07/11/2026', itens: ['Aviso de nova versão corrigido: só aparece quando há versão nova publicada'] },
